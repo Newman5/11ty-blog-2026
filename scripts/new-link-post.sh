@@ -144,6 +144,6 @@ if [ -n "$EDITOR" ]; then
   echo "Opening in $EDITOR..."
   $EDITOR "$filename"
 else
-  echo "Opening in vim (set \$EDITOR to use a different editor)..."
-  vim "$filename"
+  echo "Opening in code (set \$EDITOR to use a different editor)..."
+  code "$filename"
 fi

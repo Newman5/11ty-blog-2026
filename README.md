@@ -44,6 +44,10 @@ npm start
 # In another terminal, create your first post
 ./blog-cli.sh new "My First Post"
 
+> 💡 **Tip:** By default, scripts open files in `vim`.  
+> If you prefer another editor (like `nano` or `code`),  
+> simply edit the script and change `vim` to your preferred editor.
+
 # View in browser at http://localhost:8080
 
 # Build for production
@@ -61,13 +65,15 @@ The `blog-cli.sh` script is your main interface for managing the blog. Here are 
 ```
 
 **What this does:**
+
 1. Creates a new file in `src/posts/` with today's date
 2. Names it like: `2026-01-15-my-first-post.md`
 3. Adds front matter (title, date, tags)
 4. Opens it in your default editor
 
 **Example output:**
-```
+
+```bash
 ✓ Created: src/posts/2026-01-15-my-first-post.md
 Opening in vim...
 ```
@@ -93,6 +99,7 @@ Write your content here...
 ```
 
 **What this does:**
+
 1. Tries to fetch the page title from the URL
 2. Creates a link post in `src/posts/`
 3. Uses the link-post layout (title links to external URL)
@@ -100,6 +107,7 @@ Write your content here...
 5. Opens it for you to add your commentary
 
 **Use cases:**
+
 - Sharing interesting articles you found
 - Building a curated link blog
 - Commenting on external resources
@@ -111,12 +119,14 @@ Write your content here...
 ```
 
 **What this does:**
+
 1. Finds all `.md` files in `src/drafts/`
 2. Extracts the title from each file
 3. Counts words in each draft
 4. Displays them in a readable format
 
 **Example output:**
+
 ```
 Draft Posts
 ===========
@@ -136,6 +146,7 @@ Total drafts: 1
 ```
 
 **What this does:**
+
 1. Finds the draft file matching the slug
 2. Opens it in your editor
 
@@ -148,6 +159,7 @@ Total drafts: 1
 ```
 
 **What this does:**
+
 1. Finds the draft file
 2. Asks for confirmation
 3. Updates the date to today
@@ -155,6 +167,7 @@ Total drafts: 1
 5. Renames it with today's date
 
 **Example output:**
+
 ```
 Draft title: My Work in Progress
 Draft file: src/drafts/my-draft.md
@@ -175,12 +188,14 @@ Publish this draft? (y/n): y
 ```
 
 **What this does:**
+
 1. Searches for URLs in all posts and drafts
 2. Tests each URL with curl to check if it's accessible
 3. Reports HTTP status codes
 4. Shows a summary of broken links
 
 **Example output:**
+
 ```
 Checking Links in Blog Posts
 =============================
@@ -197,6 +212,7 @@ Summary:
 ```
 
 **When to use:**
+
 - Before publishing your site
 - Monthly maintenance checks
 - After updating old posts
@@ -208,6 +224,7 @@ Summary:
 ```
 
 **What this does:**
+
 1. Counts total posts and drafts
 2. Calculates total words and average per post
 3. Shows posts grouped by year
@@ -215,6 +232,7 @@ Summary:
 5. Shows your 5 most recent posts
 
 **Example output:**
+
 ```
 Blog Statistics
 ===============
@@ -253,6 +271,7 @@ Top 10 Tags:
 ```
 
 **What this does:**
+
 1. Finds all posts from the specified month
 2. Creates a new summary post listing all posts
 3. Includes word counts and tags for each post
@@ -260,6 +279,7 @@ Top 10 Tags:
 5. Saves as a new post with today's date
 
 **Use cases:**
+
 - Monthly retrospectives
 - Content planning and review
 - Building a blog archive
@@ -271,12 +291,14 @@ Top 10 Tags:
 ```
 
 **What this does:**
+
 1. Searches for the keyword in post titles and content
 2. Shows matching posts with context
 3. Displays line numbers where matches occur
 4. Shows surrounding lines for context
 
 **Example output:**
+
 ```
 Searching for: bash
 ====================
@@ -388,11 +410,11 @@ echo "more text" >> file.txt
 
 ### Learning Resources
 
-- **Bash Academy**: https://www.bash.academy/ - Comprehensive bash tutorial
-- **ShellCheck**: https://www.shellcheck.net/ - Online bash script linter
-- **Explain Shell**: https://explainshell.com/ - Explains bash commands
-- **11ty Documentation**: https://www.11ty.dev/docs/ - Learn about the static site generator
-- **Markdown Guide**: https://www.markdownguide.org/ - Master markdown syntax
+- **Bash Academy**: <https://www.bash.academy/> - Comprehensive bash tutorial
+- **ShellCheck**: <https://www.shellcheck.net/> - Online bash script linter
+- **Explain Shell**: <https://explainshell.com/> - Explains bash commands
+- **11ty Documentation**: <https://www.11ty.dev/docs/> - Learn about the static site generator
+- **Markdown Guide**: <https://www.markdownguide.org/> - Master markdown syntax
 
 ## Project Structure
 
@@ -483,6 +505,7 @@ Your commentary here...
 ### Writing a Standard Blog Post
 
 1. **Create the post:**
+
    ```bash
    ./blog-cli.sh new "My Blog Post Title"
    ```
@@ -490,12 +513,14 @@ Your commentary here...
 2. **Write your content** in the opened editor using Markdown
 
 3. **Preview locally:**
+
    ```bash
    npm start
    # Visit http://localhost:8080
    ```
 
 4. **Commit and deploy:**
+
    ```bash
    git add .
    git commit -m "Add new post"
@@ -507,6 +532,7 @@ Your commentary here...
 1. **Find an interesting link** you want to share
 
 2. **Create the link post:**
+
    ```bash
    ./blog-cli.sh link https://example.com "Brief description"
    ```
@@ -520,16 +546,19 @@ Your commentary here...
 1. **Start a post as a draft** by saving it in `src/drafts/` instead of `src/posts/`
 
 2. **Work on it over time:**
+
    ```bash
    ./blog-cli.sh edit my-draft
    ```
 
 3. **Check your drafts:**
+
    ```bash
    ./blog-cli.sh drafts
    ```
 
 4. **Publish when ready:**
+
    ```bash
    ./blog-cli.sh publish my-draft
    ```
@@ -537,16 +566,19 @@ Your commentary here...
 ### Monthly Maintenance
 
 1. **Check for broken links:**
+
    ```bash
    ./blog-cli.sh check-links
    ```
 
 2. **Review statistics:**
+
    ```bash
    ./blog-cli.sh stats
    ```
 
 3. **Generate monthly summary:**
+
    ```bash
    ./blog-cli.sh summary 2026-01
    ```
@@ -560,6 +592,7 @@ Want to extend your blog? Here are some ideas:
 ### Add New Post Types
 
 Create templates for specific content types:
+
 - Book reviews
 - Weekly notes
 - Project updates
@@ -568,6 +601,7 @@ Create templates for specific content types:
 ### Create Custom Scripts
 
 Add new scripts to the `scripts/` directory:
+
 - **backup.sh** - Backup posts to another location
 - **image-resize.sh** - Automatically resize images
 - **tweet-post.sh** - Share new posts on social media
@@ -576,6 +610,7 @@ Add new scripts to the `scripts/` directory:
 ### Modify Templates
 
 Customize the Nunjucks templates:
+
 - Add comments section
 - Include related posts
 - Add author bio
@@ -585,6 +620,7 @@ Customize the Nunjucks templates:
 ### Extend Front Matter
 
 Add custom fields to your front matter:
+
 - `author:` for multi-author blogs
 - `featured: true` for highlighting posts
 - `image:` for post thumbnails
@@ -593,6 +629,7 @@ Add custom fields to your front matter:
 ### Integrate External Services
 
 Connect your blog to:
+
 - Analytics (Google Analytics, Plausible)
 - Comments (Disqus, utterances)
 - Newsletter (Mailchimp, Buttondown)
@@ -623,6 +660,7 @@ echo 'export EDITOR=nano' >> ~/.bashrc
 ```
 
 Popular editor options:
+
 - `nano` - Simple, beginner-friendly
 - `vim` - Powerful but steep learning curve
 - `code` - Visual Studio Code
@@ -633,12 +671,15 @@ Popular editor options:
 **Problem:** `npm install` fails or `npm start` doesn't work
 
 **Solutions:**
+
 1. Make sure Node.js is installed: `node --version`
 2. Try deleting `node_modules` and reinstalling:
+
    ```bash
    rm -rf node_modules
    npm install
    ```
+
 3. Clear npm cache: `npm cache clean --force`
 4. Update npm: `npm install -g npm@latest`
 
@@ -647,8 +688,10 @@ Popular editor options:
 **Problem:** Error says port 8080 is already in use
 
 **Solutions:**
+
 1. Kill the process using the port
 2. Or use a different port:
+
    ```bash
    npx @11ty/eleventy --serve --port=3000
    ```
@@ -658,6 +701,7 @@ Popular editor options:
 **Problem:** Scripts can't find posts or drafts
 
 **Solutions:**
+
 1. Make sure you're in the project root directory
 2. Check that files are in the correct directories:
    - Published posts go in `src/posts/`
@@ -669,6 +713,7 @@ Popular editor options:
 Some scripts use the `date` command, which works differently on macOS and Linux.
 
 **If you see date-related errors on macOS:**
+
 - The scripts include fallback options for macOS
 - Make sure you have the latest version of bash
 
@@ -694,10 +739,12 @@ Some scripts use the `date` command, which works differently on macOS and Linux.
 ### For Code Quality
 
 - **Run ShellCheck** on your scripts:
+
   ```bash
   shellcheck blog-cli.sh
   shellcheck scripts/*.sh
   ```
+
 - **Test changes** before committing
 - **Keep scripts simple** - Favor readability over cleverness
 - **Add comments** when you modify scripts
