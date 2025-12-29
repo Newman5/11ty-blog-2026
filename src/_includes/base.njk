@@ -5,6 +5,11 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>{% block title %}11ty Blog 2026{% endblock %}</title>
   
+  <!-- RSS Feed Link -->
+  <!-- This lets browsers and feed readers discover your RSS feed automatically -->
+  <!-- Users can subscribe to your blog to get notified of new posts -->
+  <link rel="alternate" href="/feed/feed.xml" type="application/atom+xml" title="11ty Blog 2026 RSS Feed">
+  
   <!-- Minimal inline CSS for clean, readable layout -->
   <style>
     /* Basic reset and layout */
@@ -88,6 +93,7 @@
     <nav>
       <a href="/">Home</a>
       <a href="/posts/">All Posts</a>
+      <a href="/feed/feed.xml">RSS Feed</a>
     </nav>
   </header>
   
