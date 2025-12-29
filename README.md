@@ -54,6 +54,41 @@ npm start
 npm run build
 ```
 
+## Deploying to GitHub Pages
+
+This blog is configured to automatically deploy to GitHub Pages using GitHub Actions. Here's how to set it up:
+
+### 1. Enable GitHub Pages
+
+1. Go to your repository on GitHub
+2. Click on **Settings** > **Pages** (in the left sidebar)
+3. Under **Source**, select **GitHub Actions**
+
+That's it! The workflow is already configured in `.github/workflows/deploy.yml`.
+
+### 2. How It Works
+
+- Every time you push to the `main` branch, GitHub Actions will:
+  1. Install dependencies
+  2. Build your site with Eleventy
+  3. Deploy the `_site` folder to GitHub Pages
+
+- Your site will be available at: `https://YOUR-USERNAME.github.io/11ty-blog-2026/`
+
+### 3. Manual Deployment
+
+You can also trigger a deployment manually:
+
+1. Go to **Actions** tab in your repository
+2. Select the "Deploy to GitHub Pages" workflow
+3. Click **Run workflow** > **Run workflow**
+
+### 4. View Build Status
+
+- Check the **Actions** tab to see deployment status
+- A green checkmark means successful deployment
+- Click on any workflow run to see detailed logs
+
 ## Blog CLI Commands
 
 The `blog-cli.sh` script is your main interface for managing the blog. Here are all the available commands:

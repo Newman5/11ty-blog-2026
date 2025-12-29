@@ -23,10 +23,10 @@
 
 {# 
   Loop through posts collection (defined in .eleventy.js)
-  The slice(0, 10) takes only the first 10 posts
+  Use the head filter to get only the first 10 posts
   Posts are already sorted by date (newest first) in .eleventy.js
 #}
-{% for post in collections.posts | slice(0, 10) %}
+{% for post in collections.posts | head(10) %}
   <article style="margin-bottom: 30px;">
     {# Post title as a link #}
     <h3 style="margin-bottom: 5px;">
