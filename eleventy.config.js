@@ -23,7 +23,7 @@ export default function(eleventyConfig) {
   // Create an excerpt from post content (first 200 characters)
   eleventyConfig.addFilter("excerpt", content => {
     const excerpt = content.replace(/(<([^>]+)>)/gi, ""); // Remove HTML tags
-    return excerpt.substr(0, 200) + (excerpt.length > 200 ? "..." : "");
+    return excerpt.substring(0, 200) + (excerpt.length > 200 ? "..." : "");
   });
   
   // Format dates in various ways
