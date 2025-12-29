@@ -6,7 +6,8 @@
   "main": "eleventy.config.js",
   "scripts": {
     "start": "eleventy --serve",
-    "build": "eleventy"
+    "build": "eleventy",
+    "build-ghpages": "npx @11ty/eleventy --pathprefix=/11ty-blog-2026/"
   },
   "keywords": [
     "blog",

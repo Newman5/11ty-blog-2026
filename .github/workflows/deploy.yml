@@ -39,7 +39,7 @@ jobs:
         run: npm ci
       
       - name: Build with Eleventy
-        run: npm run build
+        run: npm run build-ghpages
       
       - name: Setup Pages
         uses: actions/configure-pages@v4
