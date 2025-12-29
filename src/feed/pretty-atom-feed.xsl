@@ -5,7 +5,7 @@
 
 Based on "Pretty RSS Feed": https://github.com/genmon/aboutfeeds/issues/26
 
-Styles an Atom feed, making it friendly for humans viewers, and adds a link
+Styles an Atom feed, making it friendly for human viewers, and adds a link
 to aboutfeeds.com for new user onboarding. See it in action:
 
 https://nicolas-hoizey.com/feeds/all.xml
