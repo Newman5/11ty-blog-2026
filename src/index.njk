@@ -1,0 +1,54 @@
+{#
+  Homepage Template
+  Shows the 10 most recent posts
+#}
+
+{# Use the base layout #}
+{% extends "base.njk" %}
+
+{# Set page title #}
+{% block title %}Home - 11ty Blog 2026{% endblock %}
+
+{# Main content #}
+{% block content %}
+
+<h1>Welcome to 11ty Blog 2026</h1>
+
+<p>
+  A beginner-friendly blog starter with helpful bash scripts.
+  Learn bash scripting while building your blog!
+</p>
+
+<h2>Recent Posts</h2>
+
+{# 
+  Loop through posts collection (defined in .eleventy.js)
+  The slice(0, 10) takes only the first 10 posts
+  Posts are already sorted by date (newest first) in .eleventy.js
+#}
+{% for post in collections.posts | slice(0, 10) %}
+  <article style="margin-bottom: 30px;">
+    {# Post title as a link #}
+    <h3 style="margin-bottom: 5px;">
+      <a href="{{ post.url }}">{{ post.data.title }}</a>
+    </h3>
+    
+    {# Post date #}
+    <p style="color: #666; margin: 5px 0;">
+      <time datetime="{{ post.data.date }}">{{ post.data.date | readableDate }}</time>
+    </p>
+    
+    {# Post excerpt (first 200 characters, defined in .eleventy.js) #}
+    <p>
+      {{ post.templateContent | excerpt }}
+      <a href="{{ post.url }}">Read more →</a>
+    </p>
+  </article>
+{% endfor %}
+
+{# Link to full archive #}
+<p style="margin-top: 40px;">
+  <a href="/posts/">View all posts →</a>
+</p>
+
+{% endblock %}

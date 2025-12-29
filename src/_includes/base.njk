@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}11ty Blog 2026{% endblock %}</title>
+  
+  <!-- Minimal inline CSS for clean, readable layout -->
+  <style>
+    /* Basic reset and layout */
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+      line-height: 1.6;
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 20px;
+      color: #333;
+    }
+    
+    /* Header styles */
+    header {
+      border-bottom: 2px solid #333;
+      margin-bottom: 40px;
+      padding-bottom: 20px;
+    }
+    
+    header h1 {
+      margin: 0;
+      font-size: 2em;
+    }
+    
+    nav {
+      margin-top: 10px;
+    }
+    
+    nav a {
+      margin-right: 20px;
+      color: #0066cc;
+      text-decoration: none;
+    }
+    
+    nav a:hover {
+      text-decoration: underline;
+    }
+    
+    /* Main content area */
+    main {
+      min-height: 400px;
+    }
+    
+    /* Footer styles */
+    footer {
+      margin-top: 60px;
+      padding-top: 20px;
+      border-top: 1px solid #ccc;
+      color: #666;
+      font-size: 0.9em;
+    }
+    
+    /* Link styles */
+    a {
+      color: #0066cc;
+    }
+    
+    a:hover {
+      color: #004499;
+    }
+    
+    /* Code blocks */
+    pre {
+      background: #f4f4f4;
+      padding: 15px;
+      overflow-x: auto;
+      border-radius: 5px;
+    }
+    
+    code {
+      background: #f4f4f4;
+      padding: 2px 6px;
+      border-radius: 3px;
+    }
+  </style>
+</head>
+<body>
+  <!-- Header with site title and navigation -->
+  <header>
+    <h1><a href="/" style="color: inherit; text-decoration: none;">11ty Blog 2026</a></h1>
+    <nav>
+      <a href="/">Home</a>
+      <a href="/posts/">All Posts</a>
+    </nav>
+  </header>
+  
+  <!-- Main content area - this is where child templates insert content -->
+  <!-- The "content" block is what child templates will fill in -->
+  <main>
+    {% block content %}
+    <!-- Content from child templates goes here -->
+    {% endblock %}
+  </main>
+  
+  <!-- Footer with build date -->
+  <footer>
+    <p>Built with <a href="https://www.11ty.dev/">Eleventy</a> &mdash; Last updated: {{ page.date | readableDate }}</p>
+  </footer>
+</body>
+</html>

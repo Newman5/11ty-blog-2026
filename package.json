@@ -1,0 +1,16 @@
+{
+  "name": "11ty-blog-2026",
+  "version": "1.0.0",
+  "description": "Beginner-friendly 11ty blog with bash script helpers for common blogging tasks",
+  "main": ".eleventy.js",
+  "scripts": {
+    "start": "eleventy --serve",
+    "build": "eleventy"
+  },
+  "keywords": ["blog", "11ty", "eleventy", "bash", "static-site", "learning"],
+  "author": "Newman5",
+  "license": "MIT",
+  "dependencies": {
+    "@11ty/eleventy": "^2.0.0"
+  }
+}
