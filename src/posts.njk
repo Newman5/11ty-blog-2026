@@ -1,5 +1,4 @@
 ---
-layout: base.njk
 title: All Posts
 permalink: /posts/
 ---
@@ -8,6 +7,15 @@ permalink: /posts/
   Posts Archive Page
   Lists ALL posts grouped by year
 #}
+
+{# Use the base layout #}
+{% extends "base.njk" %}
+
+{# Set page title #}
+{% block title %}All Posts - 11ty Blog 2026{% endblock %}
+
+{# Main content #}
+{% block content %}
 
 <h1>All Posts</h1>
 
@@ -36,3 +44,5 @@ permalink: /posts/
 <p style="margin-top: 40px;">
   <a href="/">← Back to home</a>
 </p>
+
+{% endblock %}
