@@ -7,6 +7,7 @@ A beginner-friendly 11ty blog starter with heavily-commented bash scripts for co
 - **Simple Bash Scripts**: Create posts, manage drafts, check for broken links, and more
 - **Link Blog Support**: Special template for sharing interesting links with your commentary
 - **Blog Statistics**: Track your writing habits with word counts and tag analytics
+- **RSS Feed**: Full-featured Atom feed with pretty preview and aboutfeeds.com integration for easy subscription
 - **Beginner-Friendly Code**: Every script is extensively commented for learning
 - **Modern Static Site**: Built with [11ty (Eleventy)](https://www.11ty.dev/), a powerful static site generator
 - **Clean Templates**: Responsive Nunjucks templates with minimal, well-commented CSS
@@ -53,6 +54,60 @@ npm start
 # Build for production
 npm run build
 ```
+
+## RSS Feed
+
+This blog includes a full-featured RSS feed that lets readers subscribe and get notified when you publish new posts.
+
+### What is RSS?
+
+RSS (Really Simple Syndication) is a way for people to follow your blog without checking it manually. They add your feed URL to a "feed reader" app, and new posts appear automatically. It's like a personalized news feed for blogs!
+
+**Learn more:** Visit [About Feeds](https://aboutfeeds.com/) for a beginner-friendly introduction to RSS feeds.
+
+### Using the RSS Feed
+
+Your blog's RSS feed is automatically generated at `/feed/feed.xml`. Readers can:
+
+1. **Subscribe automatically** - Modern browsers and feed readers can auto-discover the feed
+2. **Copy the feed URL** - Share this URL: `https://your-site.com/feed/feed.xml`
+3. **Click the RSS link** - There's an "RSS Feed" link in your site's navigation
+
+### Human-Readable Preview
+
+When someone visits your feed URL in a browser, they'll see a nice explanation page (thanks to the pretty-atom-feed.xsl stylesheet). This page:
+
+- Explains what RSS feeds are
+- Links to [aboutfeeds.com](https://aboutfeeds.com/) for newcomers
+- Shows your recent posts in a readable format
+- Makes it easy for beginners to get started with feeds
+
+### Popular Feed Readers
+
+- **Feedly** - Web-based, easy to use
+- **NewsBlur** - Web and mobile
+- **NetNewsWire** - macOS and iOS
+- **Inoreader** - Cross-platform
+- **The Old Reader** - Nostalgic design
+
+### Customizing Your Feed
+
+Edit the feed settings in `eleventy.config.js`:
+
+```javascript
+// Find the feedPlugin configuration
+metadata: {
+  language: "en",
+  title: "Your Blog Title",          // Change this
+  subtitle: "Your blog description",  // And this
+  base: "https://your-site.com/",    // Your actual URL
+  author: {
+    name: "Your Name"                 // Your name
+  }
+}
+```
+
+The feed automatically includes your 10 most recent posts. You can change this limit in the `collection` settings.
 
 ## Deploying to GitHub Pages
 

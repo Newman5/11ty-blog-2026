@@ -2,6 +2,10 @@
 // This file tells Eleventy how to build your site
 // Using ES6 module syntax for Eleventy 3.x
 
+// Import the RSS plugin to generate RSS/Atom feeds
+// This allows readers to subscribe to your blog in their favorite feed reader
+import { feedPlugin } from "@11ty/eleventy-plugin-rss";
+
 /** @param {import("@11ty/eleventy").UserConfig} eleventyConfig */
 export default function(eleventyConfig) {
   
@@ -76,6 +80,47 @@ export default function(eleventyConfig) {
   
   // eleventyConfig.addPassthroughCopy("src/css");
   // eleventyConfig.addPassthroughCopy("src/images");
+  
+  // Copy the RSS feed XSL stylesheet to the output
+  // This makes the RSS feed look nice when viewed in a browser
+  eleventyConfig.addPassthroughCopy("src/feed/pretty-atom-feed.xsl");
+  
+  // ========================================
+  // RSS FEED PLUGIN
+  // ========================================
+  // This plugin generates an RSS/Atom feed for your blog
+  // Readers can subscribe to your blog using feed readers like Feedly, NewsBlur, etc.
+  // Learn more: https://aboutfeeds.com/
+  
+  eleventyConfig.addPlugin(feedPlugin, {
+    // Type of feed to generate - atom is modern and well-supported
+    type: "atom",
+    
+    // Where to save the generated feed file
+    outputPath: "/feed/feed.xml",
+    
+    // Use the pretty stylesheet to make the feed human-readable in browsers
+    // This shows an explanation about feeds and links to aboutfeeds.com
+    stylesheet: "pretty-atom-feed.xsl",
+    
+    // Which collection of posts to include in the feed
+    collection: {
+      name: "posts",    // Use the "posts" collection
+      limit: 10,        // Include only the 10 most recent posts
+    },
+    
+    // Metadata about your blog
+    // UPDATE THESE VALUES to match your blog!
+    metadata: {
+      language: "en",
+      title: "11ty Blog 2026",
+      subtitle: "A beginner-friendly blog with bash scripting helpers",
+      base: "https://newman5.github.io/11ty-blog-2026/",  // Your blog URL
+      author: {
+        name: "Newman5"
+      }
+    }
+  });
 }
 
 // ========================================
