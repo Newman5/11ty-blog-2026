@@ -1,0 +1,22 @@
+# Node.js dependencies
+node_modules/
+
+# Built site output
+_site/
+
+# Mac OS files
+.DS_Store
+
+# Log files
+*.log
+npm-debug.log*
+
+# Editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS files
+Thumbs.db

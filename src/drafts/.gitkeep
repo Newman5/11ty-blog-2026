@@ -1,0 +1,2 @@
+# This file keeps the drafts directory in git
+# Git doesn't track empty directories, so we add this placeholder file

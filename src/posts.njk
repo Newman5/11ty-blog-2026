@@ -1,0 +1,62 @@
+---
+layout: base.njk
+title: All Posts
+permalink: /posts/
+---
+
+{#
+  Posts Archive Page
+  Lists ALL posts grouped by year
+#}
+
+<h1>All Posts</h1>
+
+{#
+  Group posts by year
+  This is a bit complex but well-commented for learning
+#}
+
+{# 
+  First, we need to get all unique years from our posts
+  We'll loop through posts and track which years we've seen
+#}
+
+{% set years = [] %}
+{% for post in collections.posts %}
+  {# Get the year from the post date #}
+  {% set year = post.data.date | date('YYYY') %}
+  
+  {# Add year to our list if we haven't seen it yet #}
+  {# The "not in" operator checks if year is already in the list #}
+  {% if year not in years %}
+    {% set years = (years.push(year), years) %}
+  {% endif %}
+{% endfor %}
+
+{# Now loop through each year and show posts from that year #}
+{% for year in years %}
+  <h2>{{ year }}</h2>
+  
+  <ul style="list-style: none; padding: 0;">
+    {# Loop through all posts again, but only show ones from this year #}
+    {% for post in collections.posts %}
+      {% set postYear = post.data.date | date('YYYY') %}
+      
+      {# Only show post if it's from the current year #}
+      {% if postYear == year %}
+        <li style="margin-bottom: 15px;">
+          {# Post date and title #}
+          <time datetime="{{ post.data.date }}" style="color: #666; font-family: monospace;">
+            {{ post.data.date | date('MMM DD') }}
+          </time>
+          &nbsp;·&nbsp;
+          <a href="{{ post.url }}">{{ post.data.title }}</a>
+        </li>
+      {% endif %}
+    {% endfor %}
+  </ul>
+{% endfor %}
+
+<p style="margin-top: 40px;">
+  <a href="/">← Back to home</a>
+</p>

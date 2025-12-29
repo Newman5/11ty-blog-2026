@@ -1,0 +1,55 @@
+{# 
+  Link Post Template
+  This template is used for "link blog" posts - posts about external links
+  It's similar to post.njk but the title links to the external URL
+#}
+
+{# Tell Nunjucks we want to use base.njk as our layout #}
+{% extends "base.njk" %}
+
+{# Set the page title #}
+{% block title %}{{ title }} - 11ty Blog 2026{% endblock %}
+
+{# Main content for this link post #}
+{% block content %}
+
+<article>
+  {# Post header - title links to external URL with arrow symbol #}
+  <header>
+    {# The title is a link to the external URL (from "link" field in front matter) #}
+    <h1>
+      <a href="{{ link }}" target="_blank" rel="noopener noreferrer">
+        {{ title }}
+        {# Right arrow indicates external link #}
+        <span style="font-size: 0.8em; color: #666;">→</span>
+      </a>
+    </h1>
+    <p>
+      <time datetime="{{ date }}">{{ date | readableDate }}</time>
+      
+      {# Display tags if they exist #}
+      {% if tags %}
+        &nbsp;·&nbsp;
+        {% for tag in tags %}
+          {# Don't show the "posts" tag - it's automatic #}
+          {% if tag != "posts" %}
+            <a href="/tags/{{ tag }}/">#{{ tag }}</a>
+          {% endif %}
+        {% endfor %}
+      {% endif %}
+    </p>
+  </header>
+  
+  {# The actual post content (your commentary about the link) #}
+  {# This is styled differently to distinguish it from the linked content #}
+  <div style="border-left: 3px solid #ccc; padding-left: 20px; margin-top: 20px;">
+    {{ content | safe }}
+  </div>
+</article>
+
+{# Navigation link back to all posts #}
+<p style="margin-top: 40px;">
+  <a href="/posts/">← Back to all posts</a>
+</p>
+
+{% endblock %}
