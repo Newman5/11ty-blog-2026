@@ -217,7 +217,7 @@ Write your content here...
 
 **Example output:**
 
-```
+```text
 Draft Posts
 ===========
 
@@ -258,7 +258,7 @@ Total drafts: 1
 
 **Example output:**
 
-```
+```text
 Draft title: My Work in Progress
 Draft file: src/drafts/my-draft.md
 
@@ -286,7 +286,7 @@ Publish this draft? (y/n): y
 
 **Example output:**
 
-```
+```text
 Checking Links in Blog Posts
 =============================
 
@@ -323,7 +323,7 @@ Summary:
 
 **Example output:**
 
-```
+```text
 Blog Statistics
 ===============
 
@@ -389,7 +389,7 @@ Top 10 Tags:
 
 **Example output:**
 
-```
+```text
 Searching for: bash
 ====================
 
@@ -508,7 +508,7 @@ echo "more text" >> file.txt
 
 ## Project Structure
 
-```
+```text
 .
 ├── .eleventy.js          # 11ty configuration (heavily commented)
 ├── .gitignore            # Files to ignore in git
@@ -617,7 +617,7 @@ Your commentary here...
    git push
    ```
 
-### Creating a Link Post
+### Creating a standard Link Post
 
 1. **Find an interesting link** you want to share
 
@@ -868,6 +868,7 @@ MIT License - Feel free to use this for your own blog!
 ## Acknowledgments
 
 - Built with [11ty (Eleventy)](https://www.11ty.dev/)
+- Uses [github.com/11ty/eleventy-base-blog](https://github.com/11ty/eleventy-base-blog) as a reference
 - Inspired by the need for beginner-friendly bash examples
 - Thanks to the static site and IndieWeb communities
 
