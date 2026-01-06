@@ -113,7 +113,7 @@ export default function(eleventyConfig) {
     // UPDATE THESE VALUES to match your blog!
     metadata: {
       language: "en",
-      title: "11ty Blog 2026",
+      title: "Newman's 11ty Blog 2026",
       subtitle: "A beginner-friendly blog with bash scripting helpers",
       base: "https://newman5.github.io/11ty-blog-2026/",  // Your blog URL
       author: {
