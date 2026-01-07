@@ -16,4 +16,9 @@ I can use markdown to format text but what about images. I'd rather not hard cod
 ![](../../../../../../src/images/posts/ibelieve.png)
 ```
 
-I got some headway on this but gotta stop for now
+I got some headway on this but gotta stop for now...
+
+one last thing... Can I do it by hand?
+![this is an image for testing](image-1.png).
+
+AH!  minor success.  
