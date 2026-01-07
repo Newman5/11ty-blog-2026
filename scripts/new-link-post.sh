@@ -89,6 +89,18 @@ slug=$(echo "$slug" | sed 's/[^a-z0-9-]//g')
 slug=$(echo "$slug" | cut -c 1-50)
 
 # ============================================
+# BUILD THE IMG DIRECTORY PATH
+# check if directory exists and create it if not
+# ============================================
+img_dir="src/images/posts/${date}-${slug}"
+if ! mkdir -p "$img_dir"; then
+  echo "Error: Could not create image directory $img_dir"
+  exit 1
+fi
+echo "✓ Image directory created: $img_dir"
+
+
+# ============================================
 # BUILD THE FILENAME
 # ============================================
 filename="src/posts/${date}-${slug}.md"
