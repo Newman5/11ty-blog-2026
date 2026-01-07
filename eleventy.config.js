@@ -79,7 +79,7 @@ export default function(eleventyConfig) {
   // Uncomment if you add CSS, images, etc.
   
   // eleventyConfig.addPassthroughCopy("src/css");
-  // eleventyConfig.addPassthroughCopy("src/images");
+  eleventyConfig.addPassthroughCopy("src/images");
   
   // Copy the RSS feed XSL stylesheet to the output
   // This makes the RSS feed look nice when viewed in a browser

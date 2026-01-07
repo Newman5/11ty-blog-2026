@@ -98,6 +98,7 @@ date: $date
 tags:
   - blog
 layout: post.njk
+og_image: /images/og/11ty-blog-OG-default.jpg
 ---
 
 Write your content here...

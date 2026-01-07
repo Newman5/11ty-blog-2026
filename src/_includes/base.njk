@@ -4,7 +4,14 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>{% block title %}11ty Blog 2026{% endblock %}</title>
-  
+
+  <!-- Open Graph Meta Tags for social media sharing -->
+<meta property="og:image" content="{{ (og_image or '/images/og/11ty-blog-OG-default.jpg') | url }}">
+<meta property="og:title" content="{{ title }}">
+<meta property="og:description" content="{{ description or 'Newman\'s New Stuff' }}">
+<meta property="og:type" content="website">
+<meta property="og:url" content="{{ page.url | url }}">
+
   <!-- RSS Feed Link -->
   <!-- This lets browsers and feed readers discover your RSS feed automatically -->
   <!-- Users can subscribe to your blog to get notified of new posts -->
