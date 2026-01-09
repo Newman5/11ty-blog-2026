@@ -115,7 +115,7 @@ export default function(eleventyConfig) {
       language: "en",
       title: "Newman's 11ty Blog 2026",
       subtitle: "A beginner-friendly blog with bash scripting helpers",
-      base: "https://newman5.github.io/11ty-blog-2026/",  // Your blog URL
+      base: "https://newmanure.com/",  // Your blog URL
       author: {
         name: "Newman5"
       }
