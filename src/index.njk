@@ -30,7 +30,7 @@
   <article style="margin-bottom: 30px;">
     {# Post title as a link #}
     <h3 style="margin-bottom: 5px;">
-      <a href="{{ post.url }}">{{ post.data.title }}</a>
+      <a href="{{ post.url | url }}">{{ post.data.title }}</a>
     </h3>
     
     {# Post date #}
@@ -41,14 +41,14 @@
     {# Post excerpt (first 200 characters, defined in .eleventy.js) #}
     <p>
       {{ post.templateContent | excerpt }}
-      <a href="{{ post.url }}">Read more →</a>
+      <a href="{{ post.url | url }}">Read more →</a>
     </p>
   </article>
 {% endfor %}
 
 {# Link to full archive #}
 <p style="margin-top: 40px;">
-  <a href="posts/">View all posts →</a>
+  <a href="{{ '/posts/' | url }}">View all posts →</a>
 </p>
 
 {% endblock %}

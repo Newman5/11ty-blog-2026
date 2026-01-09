@@ -15,7 +15,7 @@
   <!-- RSS Feed Link -->
   <!-- This lets browsers and feed readers discover your RSS feed automatically -->
   <!-- Users can subscribe to your blog to get notified of new posts -->
-  <link rel="alternate" href="/feed/feed.xml" type="application/atom+xml" title="11ty Blog 2026 RSS Feed">
+  <link rel="alternate" href="{{ '/feed/feed.xml' | url }}" type="application/atom+xml" title="11ty Blog 2026 RSS Feed">
   
   <!-- Minimal inline CSS for clean, readable layout -->
   <style>
@@ -96,11 +96,11 @@
 <body>
   <!-- Header with site title and navigation -->
   <header>
-    <h1><a href="/" style="color: inherit; text-decoration: none;">Newman's New Stuff</a></h1>
+    <h1><a href="{{ '/' | url }}" style="color: inherit; text-decoration: none;">Newman's New Stuff</a></h1>
     <nav>
-      <a href="/">Home</a>
-      <a href="posts/">All Posts</a>
-      <a href="feed/feed.xml">RSS Feed</a>
+      <a href="{{ '/' | url }}">Home</a>
+      <a href="{{ '/posts/' | url }}">All Posts</a>
+      <a href="{{ '/feed/feed.xml' | url }}">RSS Feed</a>
     </nav>
   </header>
   

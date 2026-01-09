@@ -26,7 +26,7 @@
         {% for tag in tags %}
           {# Don't show the "posts" tag - it's automatic #}
           {% if tag != "posts" %}
-            <a href="/tags/{{ tag }}/">#{{ tag }}</a>
+            <a href="{{ ('/tags/' + tag + '/') | url }}">#{{ tag }}</a>
           {% endif %}
         {% endfor %}
       {% endif %}
@@ -41,7 +41,7 @@
 
 {# Navigation link back to all posts #}
 <p style="margin-top: 40px;">
-  <a href="/posts/">← Back to all posts</a>
+  <a href="{{ '/posts/' | url }}">← Back to all posts</a>
 </p>
 
 {% endblock %}
