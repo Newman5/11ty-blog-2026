@@ -1,6 +1,9 @@
 # 11ty Blog 2026
 
-A beginner-friendly 11ty blog starter with heavily-commented bash scripts for common blogging tasks. Perfect for learning bash scripting while building your blog!
+A beginner-friendly 11ty blog starter with heavily-commented bash scripts for common blogging tasks. Perfect for learning bash scripting while building your blog! 
+>ℹ️ **Info**
+>
+>Hi ya, Folks from [11tybundle.dev](https://11tybundle.dev).  Thanks for stopping by.  If you are interested in learning Bash and using scripts to help reduce friction when writing a blog from the CLI, then you are in the right place.  Please use the issues to reach me. cheers, Newman.
 
 ## Features
 
