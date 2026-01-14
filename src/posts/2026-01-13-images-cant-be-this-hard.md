@@ -12,8 +12,8 @@ It seems so easy in a visual CMS: you just select the image and put it there, an
 
 I did learn some stuff. I ultimately got two tools, which required a bunch of other setup. The tools are:
 
-A Markdown image paste extension for VS Code, which required xclip to be installed on my Linux system and also required some configuration.
+A Markdown image paste extension for VS Code, which required xclip to be installed on my Linux system and also required some configuration. [md enhance paste](https://marketplace.visualstudio.com/items?itemName=dzylikecode.md-paste-enhanced)
 
-And ImageMagick, a Linux app.
+And [ImageMagick](https://imagemagick.org/#gsc.tab=0), a Linux app.
 
-There are several other apps for different use cases, and it’s sort of opaque as to what exactly each one is doing. I sort of miss—and probably will go back to using—the website Squash, but as it is now, this is what it is.
+There are several other apps for different use cases, and it’s sort of opaque as to what exactly each one is doing. I sort of miss—and probably will go back to using—the website ~~Squash~~ [squoosh](https://squoosh.app/), but as it is now, this is what it is.
