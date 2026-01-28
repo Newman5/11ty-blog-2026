@@ -4,18 +4,19 @@ Create a pull request for the repository **Newman5/11ty-blog-2026** that sets up
 
 ## Important Context
 
-**This is a learning template repository. ** All bash scripts must use SIMPLE, BEGINNER-FRIENDLY patterns with extensive comments explaining what the code does and why. Avoid complex bash features - keep everything straightforward for people learning bash scripting.
+**This is a learning template repository.** All bash scripts must use SIMPLE, BEGINNER-FRIENDLY patterns with extensive comments explaining what the code does and why. Avoid complex bash features - keep everything straightforward for people learning bash scripting.
 
 ## What to Create
 
 ### 1. 11ty Setup
+
 - `package.json` with 11ty dependency and npm scripts (start, build)
 - `.eleventy.js` configuration file (HEAVILY COMMENTED for learners)
-- `.gitignore` (node_modules, _site, .DS_Store, *.log)
+- `.gitignore` (node_modules,_site, .DS_Store, *.log)
 
 ### 2. Directory Structure
 
-```
+```text
 .
 ├── package.json
 ├── .eleventy. js
@@ -48,6 +49,7 @@ Create a pull request for the repository **Newman5/11ty-blog-2026** that sets up
 ### 3. Bash Scripting Guidelines (CRITICAL)
 
 **Use ONLY beginner-friendly patterns:**
+
 - Simple, clear variable names (lowercase with underscores)
 - NO complex bash features (no arrays, no advanced parameter expansions)
 - Use straightforward if/else with `[ ]` test operators
@@ -109,12 +111,14 @@ ${EDITOR:-vim} "$filename"
 ### 4. Script Descriptions
 
 #### blog-cli.sh - Main command router
+
 - Use simple case statement
 - Routes to appropriate scripts in scripts/ directory
 - Shows help with all commands and examples
 - Heavily commented explaining how case statements work
 
 #### scripts/new-post.sh - Create new blog post
+
 - Accept title as argument
 - Generate date-based filename (YYYY-MM-DD-slug. md)
 - Create markdown file with front matter (title, date, tags)
@@ -122,6 +126,7 @@ ${EDITOR:-vim} "$filename"
 - Comment every step for learners
 
 #### scripts/new-link-post.sh - Create link blog post
+
 - Accept URL and optional description as arguments
 - Try to fetch page title with curl (explain curl command)
 - Create post with "link:" field in front matter
@@ -130,6 +135,7 @@ ${EDITOR:-vim} "$filename"
 - Comment the curl/grep/sed commands for learners
 
 #### scripts/list-drafts.sh - List all drafts
+
 - Find all .md files in src/drafts/
 - Extract title from front matter (explain grep/cut)
 - Show word count with wc
@@ -137,12 +143,14 @@ ${EDITOR:-vim} "$filename"
 - Handle case when no drafts exist
 
 #### scripts/edit-draft.sh - Edit a draft
+
 - Accept slug as argument
 - Find and open draft file in editor
 - Simple error checking if file doesn't exist
 - Comment the test operators
 
 #### scripts/publish-draft.sh - Move draft to posts
+
 - Accept slug as argument
 - Ask for user confirmation (explain read command)
 - Move file from drafts/ to posts/
@@ -150,6 +158,7 @@ ${EDITOR:-vim} "$filename"
 - Comment each step
 
 #### scripts/check-links. sh - Find broken links
+
 - Search for URLs in all markdown files (posts and drafts)
 - Use curl to check HTTP status of each link (explain curl options)
 - Report broken links (400+, timeouts)
@@ -158,6 +167,7 @@ ${EDITOR:-vim} "$filename"
 - Show summary at end
 
 #### scripts/post-stats.sh - Show blog statistics
+
 - Count total posts and drafts (explain find and wc)
 - Calculate total words and average per post (explain $((math)))
 - Show posts grouped by year
@@ -166,6 +176,7 @@ ${EDITOR:-vim} "$filename"
 - Build up from simple to complex with comments explaining each section
 
 #### scripts/generate-summary. sh - Generate monthly summary
+
 - Accept month parameter in YYYY-MM format, default to current month
 - Find all posts from that month
 - Generate a new summary post listing all posts from that month
@@ -174,6 +185,7 @@ ${EDITOR:-vim} "$filename"
 - Explain date formatting and manipulation
 
 #### scripts/find-post.sh - Search posts by keyword
+
 - Accept keyword as argument
 - Use grep to search in post titles and content (explain grep options:  -i, -l, -H)
 - Show matching posts with context
@@ -182,6 +194,7 @@ ${EDITOR:-vim} "$filename"
 ### 5. Templates (Nunjucks)
 
 #### src/_includes/base.njk - Base HTML layout
+
 - Clean HTML5 structure with DOCTYPE
 - Minimal inline CSS (commented explaining styles)
 - Header with site title and navigation
@@ -190,6 +203,7 @@ ${EDITOR:-vim} "$filename"
 - Add comments explaining Nunjucks syntax (blocks, extends)
 
 #### src/_includes/post. njk - Blog post template
+
 - Extends base.njk
 - Display post title as h1
 - Show formatted date
@@ -199,6 +213,7 @@ ${EDITOR:-vim} "$filename"
 - Comment template inheritance
 
 #### src/_includes/link-post.njk - Link post template
+
 - Similar to post. njk but title links to external URL
 - Show arrow symbol (→) to indicate external link
 - Display description/commentary below
@@ -206,12 +221,14 @@ ${EDITOR:-vim} "$filename"
 - Comment the differences from regular posts
 
 #### src/index.njk - Homepage
+
 - List 10 most recent posts (use collections. posts)
 - Show title (linked), date, excerpt
 - Link to full posts archive
 - Add comments explaining 11ty collections
 
 #### src/posts.njk - Posts archive page
+
 - List ALL posts grouped by year
 - Show title and date for each
 - Clean, scannable layout
@@ -222,12 +239,14 @@ ${EDITOR:-vim} "$filename"
 Create a detailed, beginner-friendly README with these sections:
 
 #### Introduction
+
 - What this project is (11ty blog + bash scripts)
 - Key features list
 - Target audience:  beginners learning bash scripting and static sites
 - Philosophy: Simple, commented, learning-focused
 
 #### Prerequisites
+
 - Node.js installed (link to nodejs.org)
 - Basic command line knowledge
 - Text editor (VS Code, vim, nano, etc.)
@@ -266,6 +285,7 @@ npm run build
 #### Blog CLI Commands
 
 Document ALL commands with:
+
 - Clear description
 - Usage syntax
 - Complete example with actual command
@@ -295,7 +315,7 @@ Do this for ALL commands:  new, link, drafts, edit-draft, publish, check-links, 
 - Brief introduction to bash scripting
 - How to read the commented code
 - Suggest starting with blog-cli.sh, then new-post.sh
-- Explain common bash patterns used: 
+- Explain common bash patterns used:
   - Variables and command substitution
   - If statements and test operators
   - Loops (for, while)
@@ -306,7 +326,8 @@ Do this for ALL commands:  new, link, drafts, edit-draft, publish, check-links, 
 
 #### Project Structure Explained
 
-Explain each directory and its purpose: 
+Explain each directory and its purpose:
+
 - `src/` - Source files for the site
 - `src/posts/` - Published blog posts
 - `src/drafts/` - Work-in-progress posts
@@ -316,6 +337,7 @@ Explain each directory and its purpose:
 - `node_modules/` - Dependencies (created by npm install)
 
 Explain key files:
+
 - `.eleventy.js` - 11ty configuration
 - `package.json` - Node.js project file
 - `blog-cli.sh` - Main command interface
@@ -324,7 +346,7 @@ Explain front matter and what fields mean
 
 #### Common Workflows
 
-Provide step-by-step workflows for: 
+Provide step-by-step workflows for:
 
 1. **Writing a Standard Blog Post**
    - Run new command
@@ -353,6 +375,7 @@ Provide step-by-step workflows for:
 #### Customization Ideas
 
 Give users ideas for extending the blog:
+
 - Add new post types (book reviews, weekly notes)
 - Create custom scripts (backup, image processing)
 - Modify templates (add comments, related posts)
@@ -361,15 +384,17 @@ Give users ideas for extending the blog:
 
 #### Troubleshooting
 
-Common issues and solutions: 
+Common issues and solutions:
 
 **Permission Denied Errors**
+
 ```bash
 # If you get "permission denied" when running scripts: 
 chmod +x blog-cli.sh scripts/*.sh
 ```
 
 **Editor Not Opening**
+
 ```bash
 # Set your preferred editor: 
 export EDITOR=nano
@@ -377,10 +402,12 @@ export EDITOR=nano
 ```
 
 **Node/NPM Issues**
+
 - Ensure Node.js is installed
 - Try deleting node_modules and running npm install again
 
 **Port Already in Use**
+
 - Kill process on port 8080 or use:  npx @11ty/eleventy --serve --port=3000
 
 #### Tips for Learning
@@ -395,11 +422,11 @@ export EDITOR=nano
 
 #### Learning Resources
 
-- Bash:  https://www.bash.academy/
-- ShellCheck (linter): https://www.shellcheck.net/
-- 11ty Documentation: https://www.11ty.dev/docs/
-- Nunjucks Templating: https://mozilla.github.io/nunjucks/
-- Markdown Guide: https://www.markdownguide.org/
+- Bash:  <https://www.bash.academy/>
+- ShellCheck (linter): <https://www.shellcheck.net/>
+- 11ty Documentation: <https://www.11ty.dev/docs/>
+- Nunjucks Templating: <https://mozilla.github.io/nunjucks/>
+- Markdown Guide: <https://www.markdownguide.org/>
 
 #### Contributing
 
@@ -414,7 +441,7 @@ MIT License (or your choice)
 
 ### 7. Example Content
 
-Create **src/posts/2026-01-01-welcome.md** with: 
+Create **src/posts/2026-01-01-welcome.md** with:
 
 ```markdown
 ---
@@ -631,6 +658,7 @@ Thumbs.db
 ### 9. File Permissions
 
 Ensure these files are created as executable (chmod +x):
+
 - blog-cli.sh
 - scripts/new-post.sh
 - scripts/new-link-post.sh
