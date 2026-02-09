@@ -1,0 +1,63 @@
+{
+  "folders": [
+    {
+      "path": "."
+    }
+  ],
+  "settings": {
+    "editor.formatOnSave": true,
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "extensions": {
+    "recommendations": [
+      "yzhang.markdown-all-in-one",
+      "davidanson.vscode-markdownlint",
+      "bierner.markdown-mermaid",
+      "bradlc.vscode-tailwindcss",
+      "mads-hartmann.bash-ide-vscode",
+      "astro-build.astro-vscode",
+      "eseom.nunjucks-template",
+      "ecmel.vscode-html-css",
+      "dbaeumer.vscode-eslint",
+      "steoates.autoimport",
+      "christian-kohler.path-intellisense",
+      "github.vscode-pull-request-github",
+      "donjayamanne.githistory",
+      "foxundermoon.shell-format",
+      "streetsidesoftware.code-spell-checker",
+      "tamasfe.even-better-toml"
+    ],
+    "unwantedRecommendations": [
+      "ms-azuretools.vscode-docker",
+      "ms-azuretools.vscode-containers",
+      "denoland.vscode-deno",
+      "golang.go",
+      "ms-python.python",
+      "ms-python.vscode-pylance",
+      "openai.chatgpt",
+      "mark-wiemer.vscode-autohotkey-plus-plus",
+      "sidan-lab.cardano-bar-vscode",
+      "txpipe.aiken",
+      "humao.rest-client",
+      "tyriar.lorem-ipsum",
+      "naumovs.color-highlight",
+      "kamikillerto.vscode-colorize",
+      "aykutsarac.jsoncrack-vscode",
+      "nickdemayo.vscode-json-editor",
+      "mohsen1.prettify-json",
+      "crystal-spider.jsdoc-generator",
+      "dzylikecode.md-paste-enhanced",
+      "shd101wyy.markdown-preview-enhanced",
+      "bierner.markdown-preview-github-styles",
+      "takumii.markdowntable",
+      "ritwickdey.liveserver",
+      "qwtel.sqlite-viewer",
+      "midnightnetwork.compact",
+      "celianriboulet.webvalidator",
+      "pranaygp.vscode-css-peek",
+      "ms-vsliveshare.vsliveshare",
+      "ms-python.debugpy",
+      "ms-python.vscode-python-envs"
+    ]
+  }
+}
