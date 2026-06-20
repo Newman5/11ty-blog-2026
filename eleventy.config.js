@@ -2,6 +2,9 @@
 // This file tells Eleventy how to build your site
 // Using ES6 module syntax for Eleventy 3.x
 
+// Load .env values into process.env for local development
+import "dotenv/config";
+
 // Import the RSS plugin to generate RSS/Atom feeds
 // This allows readers to subscribe to your blog in their favorite feed reader
 import { feedPlugin } from "@11ty/eleventy-plugin-rss";
