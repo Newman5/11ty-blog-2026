@@ -54,7 +54,10 @@ async function fetchUnsplashPhoto(photoId) {
 async function buildUnsplashFigure(photoId, altText, options = {}) {
   const {
     sizes = "(max-width: 800px) 100vw, 800px",
-    widths = [400, 800, 1200],
+    // 1080 matches the `regular` Unsplash CDN size — avoids downloading the
+    // raw source file (which returns 403 due to hotlink restrictions) and
+    // prevents upscaling beyond the available resolution.
+    widths = [400, 800, 1080],
     formats = ["avif", "webp", "jpeg"]
   } = options;
 
@@ -74,7 +77,10 @@ async function buildUnsplashFigure(photoId, altText, options = {}) {
 </figure>`;
   }
 
-  const imageUrl = photo.urls.raw + "&w=1200&q=80&fm=jpg";
+  // Use the `regular` URL (~1080 px, pre-processed by Unsplash/Imgix).
+  // The `raw` URL requires hotlink permissions and returns 403 when eleventy-img
+  // tries to download it directly; `regular` has no such restriction.
+  const imageUrl = photo.urls.regular;
   const credit = { name: photo.user.name, username: photo.user.username, link: photo.links.html };
   const resolvedAlt = altText || photo.alt_description || "";
 
