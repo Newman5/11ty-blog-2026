@@ -6,6 +6,114 @@
 // This allows readers to subscribe to your blog in their favorite feed reader
 import { feedPlugin } from "@11ty/eleventy-plugin-rss";
 
+// Import eleventy-img for optimized image generation
+import Image from "@11ty/eleventy-img";
+
+// ========================================
+// UNSPLASH HELPERS
+// ========================================
+
+/**
+ * Fetch photo metadata from the Unsplash API.
+ * Returns null if the API key is missing or the request fails.
+ */
+async function fetchUnsplashPhoto(photoId) {
+  const accessKey = process.env.UNSPLASH_ACCESS_KEY;
+  if (!accessKey) {
+    console.warn(`[unsplashImage] UNSPLASH_ACCESS_KEY is not set. Skipping API fetch for photo "${photoId}".`);
+    return null;
+  }
+  try {
+    const res = await fetch(
+      `https://api.unsplash.com/photos/${photoId}`,
+      { headers: { Authorization: `Client-ID ${accessKey}` } }
+    );
+    if (!res.ok) {
+      console.warn(`[unsplashImage] Unsplash API returned ${res.status} for photo "${photoId}".`);
+      return null;
+    }
+    return await res.json();
+  } catch (err) {
+    console.warn(`[unsplashImage] Failed to fetch photo "${photoId}": ${err.message}`);
+    return null;
+  }
+}
+
+/**
+ * Build an optimized <figure> element containing a <picture>/<img> and
+ * the mandatory Unsplash attribution <figcaption>.
+ *
+ * @param {string} photoId   - Unsplash photo ID (from URL: unsplash.com/photos/[ID])
+ * @param {string} altText   - Accessible alt text for the image
+ * @param {object} [options] - Optional overrides: { sizes, widths, formats }
+ * @returns {Promise<string>} HTML string
+ */
+async function buildUnsplashFigure(photoId, altText, options = {}) {
+  const {
+    sizes = "(max-width: 800px) 100vw, 800px",
+    widths = [400, 800, 1200],
+    formats = ["avif", "webp", "jpeg"]
+  } = options;
+
+  // Fetch photo metadata from Unsplash API
+  const photo = await fetchUnsplashPhoto(photoId);
+
+  // Without a valid API response we cannot reliably build the CDN URL —
+  // return a graceful attribution-only placeholder so the build succeeds.
+  if (!photo) {
+    const photoLink = `https://unsplash.com/photos/${photoId}?utm_source=11ty_blog&utm_medium=referral`;
+    return `<figure class="unsplash-figure unsplash-figure--placeholder">
+  <!-- Unsplash image "${photoId}" could not be loaded (UNSPLASH_ACCESS_KEY missing or API error) -->
+  <figcaption class="unsplash-attribution">
+    Photo from <a href="${photoLink}" target="_blank" rel="noopener">Unsplash</a>
+    (set <code>UNSPLASH_ACCESS_KEY</code> to display the optimised image)
+  </figcaption>
+</figure>`;
+  }
+
+  const imageUrl = photo.urls.raw + "&w=1200&q=80&fm=jpg";
+  const credit = { name: photo.user.name, username: photo.user.username, link: photo.links.html };
+  const resolvedAlt = altText || photo.alt_description || "";
+
+  // Process the image with eleventy-img (downloads, resizes, converts)
+  const outputDir = "./_site/img/unsplash/";
+  const urlPath = "/img/unsplash/";
+
+  let pictureHtml;
+  try {
+    const metadata = await Image(imageUrl, {
+      widths,
+      formats,
+      outputDir,
+      urlPath,
+      cacheOptions: { duration: "30d", directory: ".cache/unsplash" },
+      filenameFormat: (_id, _src, width, format) =>
+        `${photoId}-${width}.${format}`
+    });
+
+    pictureHtml = Image.generateHTML(metadata, {
+      alt: resolvedAlt,
+      sizes,
+      loading: "lazy",
+      decoding: "async"
+    });
+  } catch (err) {
+    console.warn(`[unsplashImage] eleventy-img failed for photo "${photoId}": ${err.message}`);
+    // Degrade gracefully: show a direct link instead of an <img>
+    pictureHtml = `<a href="${imageUrl}" target="_blank" rel="noopener">View photo on Unsplash</a>`;
+  }
+
+  // Build the mandatory Unsplash attribution string
+  const photographerLink = `<a href="https://unsplash.com/@${credit.username}?utm_source=11ty_blog&utm_medium=referral" target="_blank" rel="noopener">${credit.name}</a>`;
+  const photoLink = `<a href="${credit.link}?utm_source=11ty_blog&utm_medium=referral" target="_blank" rel="noopener">Unsplash</a>`;
+  const attribution = `Photo by ${photographerLink} on ${photoLink}`;
+
+  return `<figure class="unsplash-figure">
+  ${pictureHtml}
+  <figcaption class="unsplash-attribution">${resolvedAlt ? `${resolvedAlt} — ` : ""}${attribution}</figcaption>
+</figure>`;
+}
+
 /** @param {import("@11ty/eleventy").UserConfig} eleventyConfig */
 export default function(eleventyConfig) {
   
@@ -70,6 +178,23 @@ export default function(eleventyConfig) {
   eleventyConfig.addCollection("posts", function(collectionApi) {
     return collectionApi.getFilteredByGlob("src/posts/*.md")
       .sort((a, b) => b.date - a.date); // Sort by date, newest first
+  });
+  
+  // ========================================
+  // UNSPLASH SHORTCODE
+  // ========================================
+  // Usage in any template or markdown file:
+  //   {% unsplashImage "PHOTO_ID", "Descriptive alt text" %}
+  //
+  // Requires UNSPLASH_ACCESS_KEY environment variable.
+  // Images are cached in .cache/unsplash/ and output to /img/unsplash/.
+
+  eleventyConfig.addAsyncShortcode("unsplashImage", async function(photoId, altText = "", options = {}) {
+    if (!photoId) {
+      console.warn("[unsplashImage] Called without a photo ID — skipping.");
+      return "";
+    }
+    return buildUnsplashFigure(photoId, altText, options);
   });
   
   // ========================================
