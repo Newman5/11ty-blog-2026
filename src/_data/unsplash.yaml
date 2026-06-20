@@ -1,0 +1,54 @@
+# Unsplash Photo Registry
+#
+# This file defines which Unsplash photos are used across the blog.
+# Each entry maps a logical name to an Unsplash photo ID along with
+# metadata that serves as a fallback when the API is unavailable.
+#
+# To add a new photo:
+#   1. Find the photo on https://unsplash.com
+#   2. Copy the photo ID from the URL (e.g. https://unsplash.com/photos/[ID])
+#   3. Add an entry below with a descriptive key
+#   4. Reference it in your post front matter as: unsplash_photo_id: "[ID]"
+#      or use the shortcode directly: {% unsplashImage "[ID]", "alt text" %}
+#
+# Environment variable required:
+#   UNSPLASH_ACCESS_KEY — your Unsplash API access key
+#   Get one at https://unsplash.com/developers
+#
+# Fields per entry:
+#   id          — Unsplash photo ID (last segment of the photo URL)
+#   alt         — short accessible description for the <img alt> attribute
+#   description — longer caption or context (supports multi-line YAML blocks)
+#   credit      — photographer name and Unsplash username (fallback when API is down)
+
+photos:
+  mountains:
+    id: phIFdC6lA4E
+    alt: Mountain landscape at sunrise
+    description: >
+      A dramatic mountain landscape bathed in golden sunrise light.
+      Captured by Nathan Anderson in the Pacific Northwest, this image
+      conveys the quiet grandeur of high-altitude wilderness.
+    credit:
+      name: Nathan Anderson
+      username: nathananderson
+
+  coffee:
+    id: TD4DBagg2wE
+    alt: Close-up of a coffee cup
+    description: >
+      A warm, steaming cup of coffee resting on a wooden table.
+      Perfect for posts about mornings, productivity, or café culture.
+    credit:
+      name: Nathan Dumlao
+      username: nate_dumlao
+
+  coding:
+    id: npxXWgQ33ZQ
+    alt: Person coding on a laptop
+    description: >
+      A developer working at a laptop in a dimly lit environment.
+      Use this for posts about programming, web development, or tech topics.
+    credit:
+      name: Emile Perron
+      username: emilep
