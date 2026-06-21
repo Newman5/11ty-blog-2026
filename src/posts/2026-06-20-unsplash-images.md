@@ -6,7 +6,7 @@ tags:
   - images
   - unsplash
 layout: post.njk
-description: "How to use the unsplashImage shortcode to embed optimised, attributed photos from Unsplash in your Eleventy posts."
+description: "How to use the unsplashImage shortcode to cache Unsplash images locally and reuse them in your Eleventy posts."
 unsplash_photo_id: "phIFdC6lA4E"
 unsplash_alt: "A dramatic mountain landscape bathed in golden sunrise light"
 ---
@@ -39,17 +39,17 @@ image inline:
 
 The shortcode:
 
-1. Fetches photo metadata (photographer name, profile URL, photo link) from the
-   Unsplash API using your `UNSPLASH_ACCESS_KEY` environment variable.
-2. Downloads the image and runs it through **eleventy-img** to produce
-   modern formats (AVIF, WebP, JPEG) at multiple widths.
-3. Outputs a `<figure>` element containing a responsive `<picture>` tag and a
-   `<figcaption>` with the mandatory Unsplash attribution link.
+1. Downloads each Unsplash photo once and stores it locally in
+   `src/images/unsplash/`.
+2. Reuses the local file on future builds, so the image is not hotlinked.
+3. Outputs a `<figure>` element with an `<img>` tag and a `<figcaption>` with
+   Unsplash attribution.
 
 ## Setup
 
-1. Create a free account at <https://unsplash.com/developers> and register an
-   application to get an **Access Key**.
+1. (Optional) Create a free account at <https://unsplash.com/developers> and
+   register an application to get an **Access Key** for richer attribution
+   metadata.
 2. Copy `.env.example` to `.env` in the project root and fill in your key:
 
    ```
@@ -69,8 +69,7 @@ https://unsplash.com/photos/phIFdC6lA4E
 
 The last path segment (`phIFdC6lA4E`) is the photo ID.
 
-## Offline / API-key-missing fallback
+## API-key-missing behavior
 
-If `UNSPLASH_ACCESS_KEY` is not set, the shortcode falls back to a direct
-Unsplash CDN URL and omits per-photographer metadata.  Your build will still
-succeed — you will just see a warning in the console.
+If `UNSPLASH_ACCESS_KEY` is not set, the image is still downloaded and cached
+locally. The caption falls back to a generic Unsplash credit link.

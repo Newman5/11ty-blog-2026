@@ -12,6 +12,9 @@ img/
 # Built site output
 _site/
 
+# Locally cached Unsplash source images
+src/images/unsplash/
+
 # Mac OS files
 .DS_Store
 

@@ -10,9 +10,7 @@ import "dotenv/config";
 import { feedPlugin } from "@11ty/eleventy-plugin-rss";
 
 // Import eleventy-img for optimized image generation
-import Image from "@11ty/eleventy-img";
-
-// File system and path utilities for persistent caching
+// File system and path utilities
 import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
@@ -21,56 +19,42 @@ import { fileURLToPath } from "url";
 // UNSPLASH HELPERS
 // ========================================
 
-// Set up file-based persistent cache for Unsplash API responses
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-const cacheFilePath = path.join(__dirname, ".cache", "unsplash-api-cache.json");
+const localUnsplashDir = path.join(__dirname, "src", "images", "unsplash");
 
-// Load cache from disk at startup
-let unsplashPhotoCache = {};
-function loadCache() {
-  try {
-    if (fs.existsSync(cacheFilePath)) {
-      const data = fs.readFileSync(cacheFilePath, "utf-8");
-      unsplashPhotoCache = JSON.parse(data);
-      console.log(`[unsplashImage] Loaded ${Object.keys(unsplashPhotoCache).length} cached photos from disk.`);
-    }
-  } catch (err) {
-    console.warn(`[unsplashImage] Could not load cache file: ${err.message}`);
-    unsplashPhotoCache = {};
-  }
+function escapeHtml(value = "") {
+  return String(value)
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#39;");
 }
 
-// Save cache to disk
-function saveCache() {
-  try {
-    const cacheDir = path.dirname(cacheFilePath);
-    if (!fs.existsSync(cacheDir)) {
-      fs.mkdirSync(cacheDir, { recursive: true });
-    }
-    fs.writeFileSync(cacheFilePath, JSON.stringify(unsplashPhotoCache, null, 2), "utf-8");
-  } catch (err) {
-    console.warn(`[unsplashImage] Could not save cache file: ${err.message}`);
+function findCachedImageFile(photoId) {
+  if (!fs.existsSync(localUnsplashDir)) {
+    return null;
   }
+  const prefix = `${photoId}.`;
+  const match = fs.readdirSync(localUnsplashDir).find(file => file.startsWith(prefix));
+  return match || null;
 }
 
-// Load cache on startup
-loadCache();
+function extensionFromContentType(contentType = "") {
+  if (contentType.includes("image/png")) return "png";
+  if (contentType.includes("image/webp")) return "webp";
+  if (contentType.includes("image/avif")) return "avif";
+  return "jpg";
+}
 
 /**
- * Fetch photo metadata from the Unsplash API with persistent file-based caching.
+ * Fetch photo metadata from Unsplash API when an API key is available.
  * Returns null if the API key is missing or the request fails.
  */
 async function fetchUnsplashPhoto(photoId) {
-  // Check cache first
-  if (unsplashPhotoCache[photoId]) {
-    console.log(`[unsplashImage] Using cached metadata for photo "${photoId}".`);
-    return unsplashPhotoCache[photoId];
-  }
-
   const accessKey = process.env.UNSPLASH_ACCESS_KEY;
   if (!accessKey) {
-    console.warn(`[unsplashImage] UNSPLASH_ACCESS_KEY is not set. Skipping API fetch for photo "${photoId}".`);
     return null;
   }
   try {
@@ -82,20 +66,37 @@ async function fetchUnsplashPhoto(photoId) {
       console.warn(`[unsplashImage] Unsplash API returned ${res.status} for photo "${photoId}".`);
       return null;
     }
-    const photoData = await res.json();
-    // Cache the response persistently
-    unsplashPhotoCache[photoId] = photoData;
-    saveCache();
-    console.log(`[unsplashImage] Cached metadata for photo "${photoId}".`);
-    return photoData;
+    return res.json();
   } catch (err) {
     console.warn(`[unsplashImage] Failed to fetch photo "${photoId}": ${err.message}`);
     return null;
   }
 }
 
+async function ensureLocalUnsplashImage(photoId, photo = null) {
+  const cachedFile = findCachedImageFile(photoId);
+  if (cachedFile) {
+    return cachedFile;
+  }
+
+  fs.mkdirSync(localUnsplashDir, { recursive: true });
+
+  const imageUrl = photo?.urls?.regular || `https://unsplash.com/photos/${photoId}/download?force=true&w=1600`;
+  const res = await fetch(imageUrl);
+  if (!res.ok) {
+    throw new Error(`download failed with status ${res.status}`);
+  }
+
+  const extension = extensionFromContentType(res.headers.get("content-type") || "");
+  const fileName = `${photoId}.${extension}`;
+  const buffer = Buffer.from(await res.arrayBuffer());
+  fs.writeFileSync(path.join(localUnsplashDir, fileName), buffer);
+  console.log(`[unsplashImage] Downloaded and cached "${fileName}" locally.`);
+  return fileName;
+}
+
 /**
- * Build an optimized <figure> element containing a <picture>/<img> and
+ * Build a <figure> element containing a local cached <img> and
  * the mandatory Unsplash attribution <figcaption>.
  *
  * @param {string} photoId   - Unsplash photo ID (from URL: unsplash.com/photos/[ID])
@@ -105,73 +106,30 @@ async function fetchUnsplashPhoto(photoId) {
  */
 async function buildUnsplashFigure(photoId, altText, options = {}) {
   const {
-    sizes = "(max-width: 800px) 100vw, 800px",
-    // 1080 matches the `regular` Unsplash CDN size — avoids downloading the
-    // raw source file (which returns 403 due to hotlink restrictions) and
-    // prevents upscaling beyond the available resolution.
-    widths = [400, 800, 1080],
-    formats = ["avif", "webp", "jpeg"]
+   sizes = "(max-width: 800px) 100vw, 800px"
   } = options;
 
-  // Fetch photo metadata from Unsplash API
+  // Fetch optional metadata (attribution details) when API key is available.
   const photo = await fetchUnsplashPhoto(photoId);
-
-  // Without a valid API response we cannot reliably build the CDN URL —
-  // return a graceful attribution-only placeholder so the build succeeds.
-  if (!photo) {
-    const photoLink = `https://unsplash.com/photos/${photoId}?utm_source=11ty_blog&utm_medium=referral`;
-    return `<figure class="unsplash-figure unsplash-figure--placeholder">
-  <!-- Unsplash image "${photoId}" could not be loaded (UNSPLASH_ACCESS_KEY missing or API error) -->
-  <figcaption class="unsplash-attribution">
-    Photo from <a href="${photoLink}" target="_blank" rel="noopener">Unsplash</a>
-    (set <code>UNSPLASH_ACCESS_KEY</code> to display the optimised image)
-  </figcaption>
-</figure>`;
-  }
-
-  // Use the `regular` URL (~1080 px, pre-processed by Unsplash/Imgix).
-  // The `raw` URL requires hotlink permissions and returns 403 when eleventy-img
-  // tries to download it directly; `regular` has no such restriction.
-  const imageUrl = photo.urls.regular;
-  const credit = { name: photo.user.name, username: photo.user.username, link: photo.links.html };
-  const resolvedAlt = altText || photo.alt_description || "";
-
-  // Process the image with eleventy-img (downloads, resizes, converts)
-  const outputDir = "./_site/img/unsplash/";
-  const urlPath = "/img/unsplash/";
-
-  let pictureHtml;
+  const resolvedAlt = altText || photo?.alt_description || "";
+  let imageHtml = "";
   try {
-    const metadata = await Image(imageUrl, {
-      widths,
-      formats,
-      outputDir,
-      urlPath,
-      cacheOptions: { duration: "30d", directory: ".cache/unsplash" },
-      filenameFormat: (_id, _src, width, format) =>
-        `${photoId}-${width}.${format}`
-    });
-
-    pictureHtml = Image.generateHTML(metadata, {
-      alt: resolvedAlt,
-      sizes,
-      loading: "lazy",
-      decoding: "async"
-    });
+   const localFile = await ensureLocalUnsplashImage(photoId, photo);
+   const src = `/images/unsplash/${localFile}`;
+   imageHtml = `<img src="${src}" alt="${escapeHtml(resolvedAlt)}" sizes="${escapeHtml(sizes)}" loading="lazy" decoding="async">`;
   } catch (err) {
-    console.warn(`[unsplashImage] eleventy-img failed for photo "${photoId}": ${err.message}`);
-    // Degrade gracefully: show a direct link instead of an <img>
-    pictureHtml = `<a href="${imageUrl}" target="_blank" rel="noopener">View photo on Unsplash</a>`;
+   console.warn(`[unsplashImage] Could not cache image "${photoId}": ${err.message}`);
+   // Degrade gracefully: show a direct link instead of an <img>
+   imageHtml = `<a href="https://unsplash.com/photos/${photoId}?utm_source=11ty_blog&utm_medium=referral" target="_blank" rel="noopener">View photo on Unsplash</a>`;
   }
 
-  // Build the mandatory Unsplash attribution string
-  const photographerLink = `<a href="https://unsplash.com/@${credit.username}?utm_source=11ty_blog&utm_medium=referral" target="_blank" rel="noopener">${credit.name}</a>`;
-  const photoLink = `<a href="${credit.link}?utm_source=11ty_blog&utm_medium=referral" target="_blank" rel="noopener">Unsplash</a>`;
-  const attribution = `Photo by ${photographerLink} on ${photoLink}`;
+  const attribution = photo
+   ? `Photo by <a href="https://unsplash.com/@${photo.user.username}?utm_source=11ty_blog&utm_medium=referral" target="_blank" rel="noopener">${escapeHtml(photo.user.name)}</a> on <a href="${photo.links.html}?utm_source=11ty_blog&utm_medium=referral" target="_blank" rel="noopener">Unsplash</a>`
+   : `Photo from <a href="https://unsplash.com/photos/${photoId}?utm_source=11ty_blog&utm_medium=referral" target="_blank" rel="noopener">Unsplash</a>`;
 
   return `<figure class="unsplash-figure">
-  ${pictureHtml}
-  <figcaption class="unsplash-attribution">${resolvedAlt ? `${resolvedAlt} — ` : ""}${attribution}</figcaption>
+  ${imageHtml}
+  <figcaption class="unsplash-attribution">${resolvedAlt ? `${escapeHtml(resolvedAlt)} — ` : ""}${attribution}</figcaption>
 </figure>`;
 }
 
@@ -247,8 +205,7 @@ export default function(eleventyConfig) {
   // Usage in any template or markdown file:
   //   {% unsplashImage "PHOTO_ID", "Descriptive alt text" %}
   //
-  // Requires UNSPLASH_ACCESS_KEY environment variable.
-  // Images are cached in .cache/unsplash/ and output to /img/unsplash/.
+  // Images are downloaded once to src/images/unsplash/ and reused locally.
 
   eleventyConfig.addAsyncShortcode("unsplashImage", async function(photoId, altText = "", options = {}) {
     if (!photoId) {
