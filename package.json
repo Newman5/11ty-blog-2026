@@ -20,7 +20,9 @@
   "author": "Newman5",
   "license": "MIT",
   "dependencies": {
-    "@11ty/eleventy": "^3.1.2"
+    "@11ty/eleventy": "^3.1.2",
+    "@11ty/eleventy-img": "^6.0.4",
+    "dotenv": "^17.4.2"
   },
   "devDependencies": {
     "@11ty/eleventy-plugin-rss": "^2.0.4"

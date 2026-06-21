@@ -1,8 +1,19 @@
 # Node.js dependencies
 node_modules/
 
+# Environment variables (never commit secrets!)
+.env
+.env.local
+
+# Eleventy-img cache and generated images
+.cache/
+img/
+
 # Built site output
 _site/
+
+# Locally cached Unsplash source images
+src/images/unsplash/
 
 # Mac OS files
 .DS_Store

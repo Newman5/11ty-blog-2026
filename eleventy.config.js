@@ -2,9 +2,136 @@
 // This file tells Eleventy how to build your site
 // Using ES6 module syntax for Eleventy 3.x
 
+// Load .env values into process.env for local development
+import "dotenv/config";
+
 // Import the RSS plugin to generate RSS/Atom feeds
 // This allows readers to subscribe to your blog in their favorite feed reader
 import { feedPlugin } from "@11ty/eleventy-plugin-rss";
+
+// Import eleventy-img for optimized image generation
+// File system and path utilities
+import fs from "fs";
+import path from "path";
+import { fileURLToPath } from "url";
+
+// ========================================
+// UNSPLASH HELPERS
+// ========================================
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+const localUnsplashDir = path.join(__dirname, "src", "images", "unsplash");
+
+function escapeHtml(value = "") {
+  return String(value)
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#39;");
+}
+
+function findCachedImageFile(photoId) {
+  if (!fs.existsSync(localUnsplashDir)) {
+    return null;
+  }
+  const prefix = `${photoId}.`;
+  const match = fs.readdirSync(localUnsplashDir).find(file => file.startsWith(prefix));
+  return match || null;
+}
+
+function extensionFromContentType(contentType = "") {
+  if (contentType.includes("image/png")) return "png";
+  if (contentType.includes("image/webp")) return "webp";
+  if (contentType.includes("image/avif")) return "avif";
+  return "jpg";
+}
+
+/**
+ * Fetch photo metadata from Unsplash API when an API key is available.
+ * Returns null if the API key is missing or the request fails.
+ */
+async function fetchUnsplashPhoto(photoId) {
+  const accessKey = process.env.UNSPLASH_ACCESS_KEY;
+  if (!accessKey) {
+    return null;
+  }
+  try {
+    const res = await fetch(
+      `https://api.unsplash.com/photos/${photoId}`,
+      { headers: { Authorization: `Client-ID ${accessKey}` } }
+    );
+    if (!res.ok) {
+      console.warn(`[unsplashImage] Unsplash API returned ${res.status} for photo "${photoId}".`);
+      return null;
+    }
+    return res.json();
+  } catch (err) {
+    console.warn(`[unsplashImage] Failed to fetch photo "${photoId}": ${err.message}`);
+    return null;
+  }
+}
+
+async function ensureLocalUnsplashImage(photoId, photo = null) {
+  const cachedFile = findCachedImageFile(photoId);
+  if (cachedFile) {
+    return cachedFile;
+  }
+
+  fs.mkdirSync(localUnsplashDir, { recursive: true });
+
+  const imageUrl = photo?.urls?.regular || `https://unsplash.com/photos/${photoId}/download?force=true&w=1600`;
+  const res = await fetch(imageUrl);
+  if (!res.ok) {
+    throw new Error(`download failed with status ${res.status}`);
+  }
+
+  const extension = extensionFromContentType(res.headers.get("content-type") || "");
+  const fileName = `${photoId}.${extension}`;
+  const buffer = Buffer.from(await res.arrayBuffer());
+  fs.writeFileSync(path.join(localUnsplashDir, fileName), buffer);
+  console.log(`[unsplashImage] Downloaded and cached "${fileName}" locally.`);
+  return fileName;
+}
+
+/**
+ * Build a <figure> element containing a local cached <img> and
+ * the mandatory Unsplash attribution <figcaption>.
+ *
+ * @param {string} photoId   - Unsplash photo ID (from URL: unsplash.com/photos/[ID])
+ * @param {string} altText   - Accessible alt text for the image
+ * @param {object} [options] - Optional overrides: { sizes, widths, formats }
+ * @returns {Promise<string>} HTML string
+ */
+async function buildUnsplashFigure(photoId, altText, options = {}) {
+  const {
+   sizes = "(max-width: 800px) 100vw, 800px"
+  } = options;
+
+  // Fetch optional metadata (attribution details) when API key is available.
+  const photo = await fetchUnsplashPhoto(photoId);
+  const resolvedAlt = altText || photo?.alt_description || "";
+  let imageHtml = "";
+  try {
+   const localFile = await ensureLocalUnsplashImage(photoId, photo);
+   const src = `/images/unsplash/${localFile}`;
+   imageHtml = `<img src="${src}" alt="${escapeHtml(resolvedAlt)}" sizes="${escapeHtml(sizes)}" loading="lazy" decoding="async">`;
+  } catch (err) {
+   console.warn(`[unsplashImage] Could not cache image "${photoId}": ${err.message}`);
+   // Degrade gracefully: show a direct link instead of an <img>
+   imageHtml = `<a href="https://unsplash.com/photos/${photoId}?utm_source=11ty_blog&utm_medium=referral" target="_blank" rel="noopener">View photo on Unsplash</a>`;
+  }
+
+  const attribution = photo
+   ? `Photo by <a href="https://unsplash.com/@${photo.user.username}?utm_source=11ty_blog&utm_medium=referral" target="_blank" rel="noopener">${escapeHtml(photo.user.name)}</a> on <a href="${photo.links.html}?utm_source=11ty_blog&utm_medium=referral" target="_blank" rel="noopener">Unsplash</a>`
+   : `Photo from <a href="https://unsplash.com/photos/${photoId}?utm_source=11ty_blog&utm_medium=referral" target="_blank" rel="noopener">Unsplash</a>`;
+
+  return `<figure class="unsplash-figure">
+  ${imageHtml}
+  <figcaption class="unsplash-attribution">${resolvedAlt ? `${escapeHtml(resolvedAlt)} — ` : ""}${attribution}</figcaption>
+</figure>`;
+}
 
 /** @param {import("@11ty/eleventy").UserConfig} eleventyConfig */
 export default function(eleventyConfig) {
@@ -70,6 +197,22 @@ export default function(eleventyConfig) {
   eleventyConfig.addCollection("posts", function(collectionApi) {
     return collectionApi.getFilteredByGlob("src/posts/*.md")
       .sort((a, b) => b.date - a.date); // Sort by date, newest first
+  });
+  
+  // ========================================
+  // UNSPLASH SHORTCODE
+  // ========================================
+  // Usage in any template or markdown file:
+  //   {% unsplashImage "PHOTO_ID", "Descriptive alt text" %}
+  //
+  // Images are downloaded once to src/images/unsplash/ and reused locally.
+
+  eleventyConfig.addAsyncShortcode("unsplashImage", async function(photoId, altText = "", options = {}) {
+    if (!photoId) {
+      console.warn("[unsplashImage] Called without a photo ID — skipping.");
+      return "";
+    }
+    return buildUnsplashFigure(photoId, altText, options);
   });
   
   // ========================================
