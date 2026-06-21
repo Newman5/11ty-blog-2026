@@ -12,15 +12,62 @@ import { feedPlugin } from "@11ty/eleventy-plugin-rss";
 // Import eleventy-img for optimized image generation
 import Image from "@11ty/eleventy-img";
 
+// File system and path utilities for persistent caching
+import fs from "fs";
+import path from "path";
+import { fileURLToPath } from "url";
+
 // ========================================
 // UNSPLASH HELPERS
 // ========================================
 
+// Set up file-based persistent cache for Unsplash API responses
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+const cacheFilePath = path.join(__dirname, ".cache", "unsplash-api-cache.json");
+
+// Load cache from disk at startup
+let unsplashPhotoCache = {};
+function loadCache() {
+  try {
+    if (fs.existsSync(cacheFilePath)) {
+      const data = fs.readFileSync(cacheFilePath, "utf-8");
+      unsplashPhotoCache = JSON.parse(data);
+      console.log(`[unsplashImage] Loaded ${Object.keys(unsplashPhotoCache).length} cached photos from disk.`);
+    }
+  } catch (err) {
+    console.warn(`[unsplashImage] Could not load cache file: ${err.message}`);
+    unsplashPhotoCache = {};
+  }
+}
+
+// Save cache to disk
+function saveCache() {
+  try {
+    const cacheDir = path.dirname(cacheFilePath);
+    if (!fs.existsSync(cacheDir)) {
+      fs.mkdirSync(cacheDir, { recursive: true });
+    }
+    fs.writeFileSync(cacheFilePath, JSON.stringify(unsplashPhotoCache, null, 2), "utf-8");
+  } catch (err) {
+    console.warn(`[unsplashImage] Could not save cache file: ${err.message}`);
+  }
+}
+
+// Load cache on startup
+loadCache();
+
 /**
- * Fetch photo metadata from the Unsplash API.
+ * Fetch photo metadata from the Unsplash API with persistent file-based caching.
  * Returns null if the API key is missing or the request fails.
  */
 async function fetchUnsplashPhoto(photoId) {
+  // Check cache first
+  if (unsplashPhotoCache[photoId]) {
+    console.log(`[unsplashImage] Using cached metadata for photo "${photoId}".`);
+    return unsplashPhotoCache[photoId];
+  }
+
   const accessKey = process.env.UNSPLASH_ACCESS_KEY;
   if (!accessKey) {
     console.warn(`[unsplashImage] UNSPLASH_ACCESS_KEY is not set. Skipping API fetch for photo "${photoId}".`);
@@ -35,7 +82,12 @@ async function fetchUnsplashPhoto(photoId) {
       console.warn(`[unsplashImage] Unsplash API returned ${res.status} for photo "${photoId}".`);
       return null;
     }
-    return await res.json();
+    const photoData = await res.json();
+    // Cache the response persistently
+    unsplashPhotoCache[photoId] = photoData;
+    saveCache();
+    console.log(`[unsplashImage] Cached metadata for photo "${photoId}".`);
+    return photoData;
   } catch (err) {
     console.warn(`[unsplashImage] Failed to fetch photo "${photoId}": ${err.message}`);
     return null;
