@@ -2,24 +2,36 @@
 #
 # This file defines which Unsplash photos are used across the blog.
 # Each entry maps a logical name to an Unsplash photo ID along with
-# metadata that serves as a fallback when the API is unavailable.
+# metadata used for alt text and attribution at build time.
 #
-# To add a new photo:
+# HOW IT WORKS
+#   1. The build reads this file to look up each photo by ID.
+#   2. If `credit.name` and `credit.username` are both filled in, the Unsplash
+#      API is SKIPPED for that photo — attribution comes entirely from this file.
+#      Fill in credit to eliminate API calls and avoid rate-limit errors.
+#   3. When a photo is downloaded for the first time and has no entry here, a
+#      new entry is auto-appended at the bottom with whatever metadata is
+#      available (API data if the key is set, otherwise empty credit fields).
+#   4. Local files are saved as  <key>-<id>.<ext>  (e.g. mountains-phIFdC6lA4E.jpg)
+#      for SEO-friendly filenames and clear attribution in the file system.
+#
+# TO ADD A NEW PHOTO
 #   1. Find the photo on https://unsplash.com
 #   2. Copy the photo ID from the URL (e.g. https://unsplash.com/photos/[ID])
-#   3. Add an entry below with a descriptive key
-#   4. Reference it in your post front matter as: unsplash_photo_id: "[ID]"
-#      or use the shortcode directly: {% unsplashImage "[ID]", "alt text" %}
+#   3. Add an entry below with a short descriptive key (no spaces, use hyphens)
+#   4. Fill in alt, description, and credit.  Populated credit avoids API calls.
+#   5. Reference it in your post: unsplash_photo_id: "[ID]"
+#      or inline:  {% unsplashImage "[ID]", "override alt text" %}
+#      (If alt is omitted from the shortcode, the YAML `alt` field is used.)
 #
-# Environment variable required:
-#   UNSPLASH_ACCESS_KEY — your Unsplash API access key
-#   Get one at https://unsplash.com/developers
-#
-# Fields per entry:
+# FIELDS PER ENTRY
+#   key         — short descriptive name used as the filename prefix (e.g. "mountains")
 #   id          — Unsplash photo ID (last segment of the photo URL)
-#   alt         — short accessible description for the <img alt> attribute
+#   alt         — short accessible description for the <img alt> attribute;
+#                 used when the shortcode is called without an explicit alt
 #   description — longer caption or context (supports multi-line YAML blocks)
-#   credit      — photographer name and Unsplash username (fallback when API is down)
+#   credit      — photographer name and Unsplash username;
+#                 when both are non-empty the API is not called for this photo
 
 photos:
   mountains:
@@ -52,3 +64,14 @@ photos:
     credit:
       name: Emile Perron
       username: emilep
+
+  bridge:
+    id: fZHPeSbemRM
+    alt: Bridge over a body of water with mountains in the background
+    description: >
+      A bridge spanning calm water with snow-capped mountains rising in the
+      distance. Evokes travel, Alaskan scenery, and the beauty of the
+      Pacific Northwest.
+    credit:
+      name: "Benjamin Voros"
+      username: "vorosbenisop"
