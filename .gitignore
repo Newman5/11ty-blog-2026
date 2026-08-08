@@ -13,7 +13,7 @@ img/
 _site/
 
 # Locally cached Unsplash source images
-src/images/unsplash/
+#src/images/unsplash/
 
 # Mac OS files
 .DS_Store
