@@ -75,3 +75,11 @@ photos:
     credit:
       name: "Benjamin Voros"
       username: "vorosbenisop"
+
+  tour-de-france-solo-rpg:
+    id: people-riding-bicycle-on-road-during-daytime-lbVKwIAZ6EY
+    alt: "Tour de France, Solo RPG, Developer updates - this blog goes everywhere"
+    description: ""
+    credit:
+      name: "Florian Schmetz"
+      username: "floschmaezz"

@@ -14,7 +14,11 @@ import { feedPlugin } from "@11ty/eleventy-plugin-rss";
 import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
-import { load as yamlLoad } from "js-yaml";
+import yaml from "js-yaml";
+const { load: yamlLoad } = yaml;
+import { eleventyImageTransformPlugin } from "@11ty/eleventy-img";
+
+
 
 // ========================================
 // UNSPLASH HELPERS
@@ -32,6 +36,55 @@ function escapeHtml(value = "") {
     .replaceAll(">", "&gt;")
     .replaceAll('"', "&quot;")
     .replaceAll("'", "&#39;");
+}
+
+function buildLocalImageFigure(src, altText = "", caption = "", options = {}) {
+  if (!src) return "";
+
+  const {
+    width,
+    className = "image-figure",
+    loading = "lazy",
+    decoding = "async",
+    sizes,
+    attributionText = "",
+    attributionName = "",
+    attributionUrl = "",
+    sourceName = "",
+    sourceUrl = ""
+  } = options;
+
+  const widthAttr = width ? ` width="${escapeHtml(String(width))}"` : "";
+  const sizesAttr = sizes ? ` sizes="${escapeHtml(String(sizes))}"` : "";
+  const figureClass = className ? ` class="${escapeHtml(className)}"` : "";
+  const safeAlt = escapeHtml(altText);
+  const safeCaption = escapeHtml(caption || altText);
+
+  const linkedAttributionName = attributionName
+    ? (attributionUrl
+      ? `<a href="${escapeHtml(attributionUrl)}" target="_blank" rel="noopener">${escapeHtml(attributionName)}</a>`
+      : escapeHtml(attributionName))
+    : "";
+
+  const linkedSourceName = sourceName
+    ? (sourceUrl
+      ? `<a href="${escapeHtml(sourceUrl)}" target="_blank" rel="noopener">${escapeHtml(sourceName)}</a>`
+      : escapeHtml(sourceName))
+    : "";
+
+  const generatedAttribution = linkedAttributionName
+    ? `Image by ${linkedAttributionName}${linkedSourceName ? ` on ${linkedSourceName}` : ""}`
+    : (linkedSourceName ? `Source: ${linkedSourceName}` : "");
+
+  const resolvedAttribution = attributionText
+    ? escapeHtml(attributionText)
+    : generatedAttribution;
+
+  const figcaptionHtml = (safeCaption || resolvedAttribution)
+    ? `<figcaption class="image-caption">${safeCaption}${safeCaption && resolvedAttribution ? ` <span class="image-attribution">- ${resolvedAttribution}</span>` : resolvedAttribution ? `<span class="image-attribution">${resolvedAttribution}</span>` : ""}</figcaption>`
+    : "";
+
+  return `<figure${figureClass}>\n  <img src="${escapeHtml(src)}" alt="${safeAlt}"${widthAttr}${sizesAttr} loading="${escapeHtml(loading)}" decoding="${escapeHtml(decoding)}">\n  ${figcaptionHtml}\n</figure>`;
 }
 
 /** Turn a string into a lowercase hyphen-separated slug (max 5 words). */
@@ -302,7 +355,9 @@ export default function(eleventyConfig) {
     }
     return array.slice(0, n);
   });
-  
+
+
+
   // ========================================
   // COLLECTIONS
   // ========================================
@@ -329,7 +384,13 @@ export default function(eleventyConfig) {
     }
     return buildUnsplashFigure(photoId, altText, options);
   });
-  
+
+  // Usage in markdown/nunjucks:
+  // {% imageFigure "/images/example.png", "Alt text", "Optional caption", { width: 600 } %}
+  eleventyConfig.addShortcode("imageFigure", function (src, altText = "", caption = "", options = {}) {
+    return buildLocalImageFigure(src, altText, caption, options);
+  });
+
   // ========================================
   // PASSTHROUGH COPY
   // ========================================
@@ -379,26 +440,18 @@ export default function(eleventyConfig) {
       }
     }
   });
+  // This plugin optimizes generic HTML <img> tags.
+  eleventyConfig.addPlugin(eleventyImageTransformPlugin);
+
+  // Tell Eleventy where to find files and where to output.
+  return {
+    dir: {
+      input: "src",           // Read files from src/
+      includes: "_includes",  // Templates are in src/_includes/
+      output: "_site"         // Built site goes to _site/
+    },
+    templateFormats: ["md", "njk", "html"],
+    markdownTemplateEngine: "njk",
+    htmlTemplateEngine: "njk"
+  };
 }
-
-// ========================================
-// CONFIGURATION
-// ========================================
-// Tell Eleventy where to find files and where to output
-// Exported separately for Eleventy 3.x
-
-export const config = {
-  // Where to look for source files
-  dir: {
-    input: "src",           // Read files from src/
-    includes: "_includes",  // Templates are in src/_includes/
-    output: "_site"         // Built site goes to _site/
-  },
-  
-  // What template languages to use
-  templateFormats: ["md", "njk", "html"],
-  
-  // Use Nunjucks for markdown files too
-  markdownTemplateEngine: "njk",
-  htmlTemplateEngine: "njk"
-};
