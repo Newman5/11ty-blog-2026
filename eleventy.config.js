@@ -14,8 +14,7 @@ import { feedPlugin } from "@11ty/eleventy-plugin-rss";
 import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
-import yaml from "js-yaml";
-const { load: yamlLoad } = yaml;
+import { load as yamlLoad } from "js-yaml";
 import { eleventyImageTransformPlugin } from "@11ty/eleventy-img";
 
 
