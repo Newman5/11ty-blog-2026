@@ -10,295 +10,20 @@ import "dotenv/config";
 import { feedPlugin } from "@11ty/eleventy-plugin-rss";
 
 // Import eleventy-img for optimized image generation
-// File system and path utilities
-import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
-import { load as yamlLoad } from "js-yaml";
 import { eleventyImageTransformPlugin } from "@11ty/eleventy-img";
+import { createImageAssets } from "./src/_lib/image-assets.js";
 
 
 
 // ========================================
-// UNSPLASH HELPERS
+// PROJECT PATHS
 // ========================================
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-const localUnsplashDir = path.join(__dirname, "src", "images", "unsplash");
-const unsplashYamlPath = path.join(__dirname, "src", "_data", "unsplash.yaml");
-
-function escapeHtml(value = "") {
-  return String(value)
-    .replaceAll("&", "&amp;")
-    .replaceAll("<", "&lt;")
-    .replaceAll(">", "&gt;")
-    .replaceAll('"', "&quot;")
-    .replaceAll("'", "&#39;");
-}
-
-function buildLocalImageFigure(src, altText = "", caption = "", options = {}) {
-  if (!src) return "";
-
-  const {
-    width,
-    className = "image-figure",
-    loading = "lazy",
-    decoding = "async",
-    sizes,
-    attributionText = "",
-    attributionName = "",
-    attributionUrl = "",
-    sourceName = "",
-    sourceUrl = ""
-  } = options;
-
-  const widthAttr = width ? ` width="${escapeHtml(String(width))}"` : "";
-  const sizesAttr = sizes ? ` sizes="${escapeHtml(String(sizes))}"` : "";
-  const figureClass = className ? ` class="${escapeHtml(className)}"` : "";
-  const safeAlt = escapeHtml(altText);
-  const safeCaption = escapeHtml(caption || altText);
-
-  const linkedAttributionName = attributionName
-    ? (attributionUrl
-      ? `<a href="${escapeHtml(attributionUrl)}" target="_blank" rel="noopener">${escapeHtml(attributionName)}</a>`
-      : escapeHtml(attributionName))
-    : "";
-
-  const linkedSourceName = sourceName
-    ? (sourceUrl
-      ? `<a href="${escapeHtml(sourceUrl)}" target="_blank" rel="noopener">${escapeHtml(sourceName)}</a>`
-      : escapeHtml(sourceName))
-    : "";
-
-  const generatedAttribution = linkedAttributionName
-    ? `Image by ${linkedAttributionName}${linkedSourceName ? ` on ${linkedSourceName}` : ""}`
-    : (linkedSourceName ? `Source: ${linkedSourceName}` : "");
-
-  const resolvedAttribution = attributionText
-    ? escapeHtml(attributionText)
-    : generatedAttribution;
-
-  const figcaptionHtml = (safeCaption || resolvedAttribution)
-    ? `<figcaption class="image-caption">${safeCaption}${safeCaption && resolvedAttribution ? ` <span class="image-attribution">- ${resolvedAttribution}</span>` : resolvedAttribution ? `<span class="image-attribution">${resolvedAttribution}</span>` : ""}</figcaption>`
-    : "";
-
-  return `<figure${figureClass}>\n  <img src="${escapeHtml(src)}" alt="${safeAlt}"${widthAttr}${sizesAttr} loading="${escapeHtml(loading)}" decoding="${escapeHtml(decoding)}">\n  ${figcaptionHtml}\n</figure>`;
-}
-
-/** Turn a string into a lowercase hyphen-separated slug (max 5 words). */
-function slugify(text = "") {
-  return String(text)
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/^-|-$/g, "")
-    .split("-")
-    .filter(Boolean)
-    .slice(0, 5)
-    .join("-");
-}
-
-/**
- * Load the unsplash.yaml registry.
- * Returns { photos: { <key>: { id, alt, description, credit } } }
- */
-function loadUnsplashRegistry() {
-  try {
-    const content = fs.readFileSync(unsplashYamlPath, "utf8");
-    return yamlLoad(content) || { photos: {} };
-  } catch {
-    return { photos: {} };
-  }
-}
-
-/**
- * Find the YAML registry entry whose `id` matches photoId.
- * Returns { key, entry } or null.
- */
-function findRegistryEntryByPhotoId(registry, photoId) {
-  for (const [key, entry] of Object.entries(registry?.photos || {})) {
-    if (entry?.id === photoId) {
-      return { key, entry };
-    }
-  }
-  return null;
-}
-
-/**
- * Append a new entry to unsplash.yaml for a freshly-downloaded photo.
- * Called only when no existing registry entry exists for the photo.
- */
-function appendYamlEntry(photoId, key, altText, photo) {
-  // Escape backslashes first, then double-quotes, for safe YAML double-quoted strings.
-  const yamlEscape = str => String(str || "").replace(/\\/g, "\\\\").replace(/"/g, '\\"');
-  const safeAlt    = yamlEscape(altText);
-  const name       = yamlEscape(photo?.user?.name     || "");
-  const username   = yamlEscape(photo?.user?.username || "");
-  const block = [
-    ``,
-    `  ${key}:`,
-    `    id: ${photoId}`,
-    `    alt: "${safeAlt}"`,
-    `    description: ""`,
-    `    credit:`,
-    `      name: "${name}"`,
-    `      username: "${username}"`,
-    ``
-  ].join("\n");
-  fs.appendFileSync(unsplashYamlPath, block, "utf8");
-  console.log(`[unsplashImage] Added YAML entry "${key}" for photo "${photoId}".`);
-}
-
-/**
- * Search src/images/unsplash/ for a previously cached file for photoId.
- * Handles both legacy naming (<id>.ext) and SEO naming (<slug>-<id>.ext).
- */
-function findCachedImageFile(photoId) {
-  if (!fs.existsSync(localUnsplashDir)) {
-    return null;
-  }
-  const match = fs.readdirSync(localUnsplashDir).find(file => {
-    const base = file.slice(0, file.lastIndexOf("."));
-    return base === photoId || base.endsWith(`-${photoId}`);
-  });
-  return match || null;
-}
-
-function extensionFromContentType(contentType = "") {
-  if (contentType.includes("image/png")) return "png";
-  if (contentType.includes("image/webp")) return "webp";
-  if (contentType.includes("image/avif")) return "avif";
-  return "jpg";
-}
-
-/**
- * Fetch photo metadata from Unsplash API when an API key is available.
- * Returns null if the API key is missing or the request fails.
- */
-async function fetchUnsplashPhoto(photoId) {
-  const accessKey = process.env.UNSPLASH_ACCESS_KEY;
-  if (!accessKey) {
-    return null;
-  }
-  try {
-    const res = await fetch(
-      `https://api.unsplash.com/photos/${photoId}`,
-      { headers: { Authorization: `Client-ID ${accessKey}` } }
-    );
-    if (!res.ok) {
-      console.warn(`[unsplashImage] Unsplash API returned ${res.status} for photo "${photoId}".`);
-      return null;
-    }
-    return res.json();
-  } catch (err) {
-    console.warn(`[unsplashImage] Failed to fetch photo "${photoId}": ${err.message}`);
-    return null;
-  }
-}
-
-/**
- * Download a photo from Unsplash and save it locally.
- * The filename uses a SEO-friendly slug prefix: <slug>-<photoId>.<ext>
- * @param {string} photoId
- * @param {string} slug    - Descriptive slug (from YAML key or alt text)
- * @param {object} [photo] - Optional API response (provides urls.regular)
- * @returns {Promise<string>} The saved filename
- */
-async function downloadUnsplashImage(photoId, slug, photo = null) {
-  fs.mkdirSync(localUnsplashDir, { recursive: true });
-
-  const imageUrl = photo?.urls?.regular || `https://unsplash.com/photos/${photoId}/download?force=true&w=1600`;
-  const res = await fetch(imageUrl);
-  if (!res.ok) {
-    throw new Error(`download failed with status ${res.status}`);
-  }
-
-  const extension = extensionFromContentType(res.headers.get("content-type") || "");
-  const fileName = `${slug}-${photoId}.${extension}`;
-  const buffer = Buffer.from(await res.arrayBuffer());
-  fs.writeFileSync(path.join(localUnsplashDir, fileName), buffer);
-  console.log(`[unsplashImage] Downloaded and cached "${fileName}" locally.`);
-  return fileName;
-}
-
-/**
- * Build a <figure> element containing a local cached <img> and
- * the mandatory Unsplash attribution <figcaption>.
- *
- * Resolution order for alt text:  shortcode param → YAML alt → API alt_description
- * Resolution order for credit:    YAML credit → API user data → generic link
- * The Unsplash API is only called when YAML credit data is absent.
- *
- * @param {string} photoId   - Unsplash photo ID (from URL: unsplash.com/photos/[ID])
- * @param {string} altText   - Accessible alt text for the image
- * @param {object} [options] - Optional overrides: { sizes }
- * @returns {Promise<string>} HTML string
- */
-async function buildUnsplashFigure(photoId, altText, options = {}) {
-  const {
-   sizes = "(max-width: 800px) 100vw, 800px"
-  } = options;
-
-  // Load the YAML registry and look up an entry for this photo ID.
-  const registry = loadUnsplashRegistry();
-  const registryMatch = findRegistryEntryByPhotoId(registry, photoId);
-  const yamlKey   = registryMatch?.key   || null;
-  const yamlEntry = registryMatch?.entry || null;
-
-  // Skip the API when the YAML already has photographer credit — this avoids
-  // hitting the rate-limit on every build for already-catalogued photos.
-  const hasYamlCredit = !!(yamlEntry?.credit?.name && yamlEntry?.credit?.username);
-  const photo = hasYamlCredit ? null : await fetchUnsplashPhoto(photoId);
-
-  // Resolve alt text: shortcode param > YAML alt > API alt_description
-  const resolvedAlt = altText || yamlEntry?.alt || photo?.alt_description || "";
-
-  // Determine the slug to use as the filename prefix.
-  // Prefer the YAML key (human-chosen, e.g. "mountains"), then fall back to a
-  // slug derived from the alt text so the filename is always descriptive.
-  const generatedSlug = slugify(resolvedAlt) || "photo";
-  const effectiveSlug = yamlKey || generatedSlug;
-
-  let imageHtml = "";
-  let isNewDownload = false;
-
-  try {
-    const cachedFile = findCachedImageFile(photoId);
-    let localFile;
-    if (cachedFile) {
-      localFile = cachedFile;
-    } else {
-      localFile = await downloadUnsplashImage(photoId, effectiveSlug, photo);
-      isNewDownload = true;
-    }
-    const src = `/images/unsplash/${localFile}`;
-    imageHtml = `<img src="${src}" alt="${escapeHtml(resolvedAlt)}" sizes="${escapeHtml(sizes)}" loading="lazy" decoding="async">`;
-  } catch (err) {
-    console.warn(`[unsplashImage] Could not cache image "${photoId}": ${err.message}`);
-    // Degrade gracefully: show a direct link instead of an <img>
-    imageHtml = `<a href="https://unsplash.com/photos/${photoId}?utm_source=11ty_blog&utm_medium=referral" target="_blank" rel="noopener">View photo on Unsplash</a>`;
-  }
-
-  // Auto-append a YAML entry the first time an image is downloaded so every
-  // cached photo has a corresponding registry record.
-  if (isNewDownload && !yamlEntry) {
-    appendYamlEntry(photoId, effectiveSlug, resolvedAlt, photo);
-  }
-
-  // Build attribution — prefer YAML credit, fall back to API data, then generic.
-  const creditName     = photo?.user?.name     || yamlEntry?.credit?.name;
-  const creditUsername = photo?.user?.username || yamlEntry?.credit?.username;
-  const photoPageUrl   = photo?.links?.html    || `https://unsplash.com/photos/${photoId}`;
-
-  const attribution = (creditName && creditUsername)
-    ? `Photo by <a href="https://unsplash.com/@${creditUsername}?utm_source=11ty_blog&utm_medium=referral" target="_blank" rel="noopener">${escapeHtml(creditName)}</a> on <a href="${photoPageUrl}?utm_source=11ty_blog&utm_medium=referral" target="_blank" rel="noopener">Unsplash</a>`
-    : `Photo from <a href="https://unsplash.com/photos/${photoId}?utm_source=11ty_blog&utm_medium=referral" target="_blank" rel="noopener">Unsplash</a>`;
-
-  return `<figure class="unsplash-figure">
-  ${imageHtml}
-  <figcaption class="unsplash-attribution">${resolvedAlt ? `${escapeHtml(resolvedAlt)} — ` : ""}${attribution}</figcaption>
-</figure>`;
-}
+const imageAssets = createImageAssets({ projectRoot: __dirname });
 
 /** @param {import("@11ty/eleventy").UserConfig} eleventyConfig */
 export default function(eleventyConfig) {
@@ -368,27 +93,14 @@ export default function(eleventyConfig) {
       .sort((a, b) => b.date - a.date); // Sort by date, newest first
   });
   
-  // ========================================
-  // UNSPLASH SHORTCODE
-  // ========================================
-  // Usage in any template or markdown file:
-  //   {% unsplashImage "PHOTO_ID", "Descriptive alt text" %}
+  // Provider-neutral image registry shortcodes:
+  //   {% imageAsset "mountains" %}
+  //   {% imageAsset "mountains", "Context-specific alt", { caption: false } %}
   //
-  // Images are downloaded once to src/images/unsplash/ and reused locally.
-
-  eleventyConfig.addAsyncShortcode("unsplashImage", async function(photoId, altText = "", options = {}) {
-    if (!photoId) {
-      console.warn("[unsplashImage] Called without a photo ID — skipping.");
-      return "";
-    }
-    return buildUnsplashFigure(photoId, altText, options);
-  });
-
-  // Usage in markdown/nunjucks:
-  // {% imageFigure "/images/example.png", "Alt text", "Optional caption", { width: 600 } %}
-  eleventyConfig.addShortcode("imageFigure", function (src, altText = "", caption = "", options = {}) {
-    return buildLocalImageFigure(src, altText, caption, options);
-  });
+  // Compatibility shortcodes remain available:
+  //   {% unsplashImage "PHOTO_ID", "Descriptive alt text" %}
+  //   {% imageFigure "/images/example.png", "Alt text", "Optional caption" %}
+  imageAssets.registerShortcodes(eleventyConfig);
 
   // ========================================
   // PASSTHROUGH COPY

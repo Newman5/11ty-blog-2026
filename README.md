@@ -716,8 +716,43 @@ Add custom fields to your front matter:
 
 - `author:` for multi-author blogs
 - `featured: true` for highlighting posts
-- `image:` for post thumbnails
+- `image_key:` for registered hero images from `src/_data/images.yaml`
 - `description:` for SEO meta descriptions
+
+### Registered Images
+
+Reusable images live in `src/_data/images.yaml` and can come from providers like
+Unsplash or local files. Use the registry key in posts and templates:
+
+```njk
+{% imageAsset "mountains" %}
+{% imageAsset "mountains", "Context-specific alt text", { caption: false } %}
+```
+
+Registry metadata supplies default alt text, captions, and credit. Shortcode
+arguments override those defaults for a specific use.
+
+To import a new Unsplash image, use the Unsplash photo ID as the first argument:
+
+```njk
+{% imageAsset "a-snow-covered-mountain-range-with-a-lake-below-RgXVWf0WgoU" %}
+```
+
+On the next build, the shortcode will:
+
+- download and cache the image in `src/images/unsplash/`
+- append a new entry to `src/_data/images.yaml`
+- render the image with attribution
+- let Eleventy Image process the generated `<img>` markup
+
+You can provide context-specific alt text on first use:
+
+```njk
+{% imageAsset "a-snow-covered-mountain-range-with-a-lake-below-RgXVWf0WgoU", "Snow-covered mountains reflected above a lake" %}
+```
+
+After the registry entry exists, prefer using the generated registry key instead
+of the long provider ID.
 
 ### Integrate External Services
 

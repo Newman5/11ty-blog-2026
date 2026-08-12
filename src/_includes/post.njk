@@ -33,10 +33,11 @@
     </p>
   </section>
 
-  {# Hero image from Unsplash — set `unsplash_photo_id` in the post's front matter
-     to automatically fetch, optimize, and display it with proper attribution.
-     Optionally set `unsplash_alt` for descriptive alt text. #}
-  {% if unsplash_photo_id %}
+  {# Hero image from the image registry. Prefer `image_key` for new posts.
+     `unsplash_photo_id` remains supported for older posts. #}
+  {% if image_key %}
+    {% imageAsset image_key, (image_alt or title) %}
+  {% elif unsplash_photo_id %}
     {% unsplashImage unsplash_photo_id, (unsplash_alt or title) %}
   {% endif %}
   
@@ -45,12 +46,11 @@
     {{ content | safe }}
   </div>
 
-  {# Attribution footer — shown when the post uses an Unsplash hero image #}
-  {% if unsplash_photo_id %}
+  {# Attribution footer — shown when the post uses a registered hero image. #}
+  {% if image_key or unsplash_photo_id %}
   <footer class="post-attribution">
     <p>
-      Hero photo sourced from <a href="https://unsplash.com/?utm_source=11ty_blog&utm_medium=referral" target="_blank" rel="noopener">Unsplash</a>.
-      See the image caption above for photographer credit.
+      Hero image sourced from the image registry. See the image caption above for credit.
     </p>
   </footer>
   {% endif %}

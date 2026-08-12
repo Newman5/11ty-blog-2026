@@ -112,12 +112,12 @@ tags:
 layout: post.njk
 og_image: /images/og/11ty-blog-OG-default.jpg
 description: "A brief description of your post goes here."
-unsplash_photo_id: "your-unsplash-photo-id"
-unsplash_alt: "Describe the Unsplash image for accessibility"
+# image_key: "registry-image-key"
+# image_alt: "Optional context-specific alt text"
 ---
 
-Reminder: Put post images in src/images/posts/${date}-${slug}/ and add them with the imageFigure shortcode, for example: {% imageFigure "/images/posts/${date}-${slug}/your-image.png", "Alt text", "Optional caption" %}
-Reminder: For an Unsplash hero image, set unsplash_photo_id and unsplash_alt in front matter; for inline use, add {% unsplashImage "PHOTO_ID", "Alt text" %} in the post body.
+Reminder: Put post images in src/images/posts/${date}-${slug}/ and add them with the imageFigure shortcode, for example: {% raw %}{% imageFigure "/images/posts/${date}-${slug}/your-image.png", "Alt text", "Optional caption" %}{% endraw %}
+Reminder: For a registered hero image, set image_key in front matter. For inline use, add {% raw %}{% imageAsset "registry-image-key" %}{% endraw %} in the post body.
 
 Write your content here...
 

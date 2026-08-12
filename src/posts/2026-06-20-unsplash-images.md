@@ -1,49 +1,53 @@
 ---
-title: "Unsplash Images in 11ty — Automatic Fetching & Attribution"
+title: "Image Assets in 11ty — Registry, Caching & Attribution"
 date: 2026-06-20
 tags:
   - blog
   - images
   - unsplash
 layout: post.njk
-description: "How to use the unsplashImage shortcode to cache Unsplash images locally and reuse them in your Eleventy posts."
-unsplash_photo_id: "phIFdC6lA4E"
-unsplash_alt: "A dramatic mountain landscape bathed in golden sunrise light"
+description: "How to use the imageAsset shortcode to cache provider images locally and reuse them in your Eleventy posts."
+image_key: "mountains"
+image_alt: "A dramatic mountain landscape bathed in golden sunrise light"
 ---
 
-This post demonstrates the two ways you can embed Unsplash photos in your
-Eleventy blog.
+This post demonstrates the two ways you can embed registered image assets in
+your Eleventy blog.
 
 ## Method 1 — Front-matter hero image (automatic)
 
-Set two keys in any post's front matter and a full-width hero image appears
+Set an image key in any post's front matter and a full-width hero image appears
 automatically above the post body, complete with photographer attribution:
 
 ```yaml
 ---
-unsplash_photo_id: "phIFdC6lA4E"
-unsplash_alt:      "A dramatic mountain landscape at sunrise"
+image_key: "mountains"
+image_alt: "A dramatic mountain landscape at sunrise"
 ---
 ```
 
-The `post.njk` template detects these keys and calls the `unsplashImage`
-shortcode for you.  No extra markup is needed.
+The `post.njk` template detects these keys and calls the `imageAsset`
+shortcode for you. No extra markup is needed.
 
 ## Method 2 — Inline shortcode
 
-Use `{% raw %}{% unsplashImage "PHOTO_ID", "Alt text" %}{% endraw %}` anywhere
-inside a markdown post or Nunjucks template to insert an optimised, attributed
-image inline:
+Use `{% raw %}{% imageAsset "coffee" %}{% endraw %}` anywhere inside a markdown
+post or Nunjucks template to insert an attributed image inline:
 
-{% unsplashImage "TD4DBagg2wE", "A warm cup of coffee on a wooden table" %}
+{% imageAsset "coffee" %}
+
+Override the registry alt text when the specific context needs it:
+
+{% imageAsset "coffee", "A warm cup of coffee on a wooden table" %}
 
 The shortcode:
 
-1. Downloads each Unsplash photo once and stores it locally in
-   `src/images/unsplash/`.
-2. Reuses the local file on future builds, so the image is not hotlinked.
-3. Outputs a `<figure>` element with an `<img>` tag and a `<figcaption>` with
-   Unsplash attribution.
+1. Looks up the image in `src/_data/images.yaml`.
+2. Downloads remote provider images once and stores them locally under
+   `src/images/`.
+3. Reuses the local file on future builds, so the image is not hotlinked.
+4. Outputs a `<figure>` element with an `<img>` tag and a `<figcaption>` with
+   provider attribution.
 
 ## Setup
 
@@ -59,7 +63,7 @@ The shortcode:
 3. The `.env` file is already in `.gitignore` — your key will never be
    committed to version control.
 
-## Finding a photo ID
+## Finding a provider ID
 
 Every Unsplash photo URL looks like:
 
@@ -69,7 +73,26 @@ https://unsplash.com/photos/phIFdC6lA4E
 
 The last path segment (`phIFdC6lA4E`) is the photo ID.
 
+Add it to `src/_data/images.yaml` with `provider: unsplash` and
+`provider_id: phIFdC6lA4E`, then use the registry key in templates:
+
+```yaml
+images:
+  mountains:
+    provider: unsplash
+    provider_id: phIFdC6lA4E
+    alt: Mountain landscape at sunrise
+```
+
+{% raw %}```njk
+{% imageAsset "mountains" %}
+```{% endraw %}
+
 ## API-key-missing behavior
 
 If `UNSPLASH_ACCESS_KEY` is not set, the image is still downloaded and cached
 locally. The caption falls back to a generic Unsplash credit link.
+
+The legacy `{% raw %}{% unsplashImage "PHOTO_ID", "Alt text" %}{% endraw %}`
+shortcode still works for older posts, but new posts should prefer
+`imageAsset`.
