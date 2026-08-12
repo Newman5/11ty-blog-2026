@@ -22,9 +22,12 @@
   ],
   "author": "Newman5",
   "license": "MIT",
+  "engines": {
+    "node": ">=22"
+  },
   "dependencies": {
     "@11ty/eleventy": "^3.1.2",
-    "@11ty/eleventy-img": "^6.0.4",
+    "@11ty/eleventy-img": "^7.0.0",
     "dotenv": "^17.4.2",
     "js-yaml": "^5.0.0"
   },

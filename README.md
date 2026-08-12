@@ -19,7 +19,7 @@ A beginner-friendly 11ty blog starter with heavily-commented bash scripts for co
 
 Before you begin, make sure you have:
 
-- **Node.js** (version 14 or higher) - [Download from nodejs.org](https://nodejs.org/)
+- **Node.js** (version 22 or higher) - [Download from nodejs.org](https://nodejs.org/)
 - **Basic command line knowledge** - You should know how to navigate directories and run commands
 - **Text editor** - VS Code, vim, nano, or any editor you prefer
 - **macOS or Linux** - Windows users can use Git Bash or WSL (Windows Subsystem for Linux)
@@ -754,6 +754,69 @@ You can provide context-specific alt text on first use:
 After the registry entry exists, prefer using the generated registry key instead
 of the long provider ID.
 
+### Use This Image Workflow in Another 11ty Site
+
+This image workflow is currently a local module, not a published npm package.
+To reuse it in another Eleventy site, copy these pieces:
+
+- `src/_lib/image-assets.js`
+- `src/_data/images.yaml`, or create a new starter file with:
+
+  ```yaml
+  images:
+  ```
+
+- the image asset CSS from `src/_includes/base.njk`:
+  - `.image-asset-figure`
+  - `.image-asset-caption`
+  - `.image-asset-attribution`
+  - optional legacy `.unsplash-*` classes
+
+Install the dependencies in the other site:
+
+```sh
+npm install js-yaml @11ty/eleventy-img dotenv
+```
+
+This workflow uses Eleventy Image v7, so the other site should also run Node.js
+22 or higher.
+
+Wire the module into that site's Eleventy config:
+
+```js
+import "dotenv/config";
+import { eleventyImageTransformPlugin } from "@11ty/eleventy-img";
+import { createImageAssets } from "./src/_lib/image-assets.js";
+
+const imageAssets = createImageAssets({
+  projectRoot: import.meta.dirname
+});
+
+export default function(eleventyConfig) {
+  imageAssets.registerShortcodes(eleventyConfig);
+
+  eleventyConfig.addPassthroughCopy("src/images");
+  eleventyConfig.addPlugin(eleventyImageTransformPlugin);
+}
+```
+
+Then import a remote Unsplash image with:
+
+```njk
+{% imageAsset "a-snow-covered-mountain-range-with-a-lake-below-RgXVWf0WgoU", "Snow-covered mountains above a lake" %}
+```
+
+The first successful build downloads the image, stores it under
+`src/images/unsplash/`, and appends a registry entry to `src/_data/images.yaml`.
+After that, use the generated registry key:
+
+```njk
+{% imageAsset "snow-covered-mountains-above-a" %}
+```
+
+The natural next step is extracting this local module, starter CSS, and starter
+registry file into a public package such as `eleventy-plugin-image-assets`.
+
 ### Integrate External Services
 
 Connect your blog to:
@@ -800,7 +863,7 @@ Popular editor options:
 
 **Solutions:**
 
-1. Make sure Node.js is installed: `node --version`
+1. Make sure Node.js 22 or higher is installed: `node --version`
 2. Try deleting `node_modules` and reinstalling:
 
    ```bash

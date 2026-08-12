@@ -1,8 +1,6 @@
 import fs from "fs";
 import path from "path";
-import yaml from "js-yaml";
-
-const { load: yamlLoad } = yaml;
+import { load as yamlLoad } from "js-yaml";
 
 function escapeHtml(value = "") {
   return String(value)
