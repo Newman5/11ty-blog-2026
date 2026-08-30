@@ -32,7 +32,11 @@ That turned out to be the useful part. Thank you, CoPilot!
 
 We followed the data from YAML → Eleventy → Nunjucks → generated HTML → JavaScript → Leaflet, figured out where it was breaking, and ended up with a cleaner reusable pattern than the first working solution.
 
+The funny bug was that I thought Eleventy already understood our YAML data because we were using YAML for images, but that file was actually being parsed by its own JavaScript utility; Copilot got the map working by adding another map-specific loader, and our eventual fix was simpler: teach Eleventy itself that .yaml is a data format with addDataExtension().
 
+```js
+eleventyConfig.addDataExtension("yaml", contents => yamlLoad(contents));
+```
 
 Nothing revolutionary. Just a few hours wandering around the woods, learning how the pieces fit together and coming home with something I can reuse the next time one of these mapping projects comes calling.
 
