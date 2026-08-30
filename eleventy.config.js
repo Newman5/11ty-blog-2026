@@ -12,6 +12,7 @@ import { feedPlugin } from "@11ty/eleventy-plugin-rss";
 // Import eleventy-img for optimized image generation
 import path from "path";
 import { fileURLToPath } from "url";
+import { load as yamlLoad } from "js-yaml";
 import { eleventyImageTransformPlugin } from "@11ty/eleventy-img";
 import { createImageAssets } from "./src/_lib/image-assets.js";
 
@@ -80,7 +81,14 @@ export default function(eleventyConfig) {
     return array.slice(0, n);
   });
 
+  // Serialize objects so templates can safely pass structured data to scripts.
+  eleventyConfig.addFilter("json", value => JSON.stringify(value));
 
+  // ========================================
+  // DATA EXTENSIONS
+  // ========================================
+  // This allows Eleventy to read YAML files in the _data directory
+  eleventyConfig.addDataExtension("yaml", contents => yamlLoad(contents));
 
   // ========================================
   // COLLECTIONS

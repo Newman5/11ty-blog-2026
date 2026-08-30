@@ -1,0 +1,23 @@
+{#
+  Reusable Leaflet map include.
+  Required context:
+    - mapData: object from src/_data/maps.yaml
+  Optional context:
+    - mapId: explicit DOM id for the map container
+#}
+
+{% if mapData %}
+  {% set resolvedMapId = mapId or ('leaflet-map-' + (mapData.title | lower | replace(' ', '-'))) %}
+  <section class="leaflet-map-block">
+    {% if mapData.title %}
+      <h2>{{ mapData.title }}</h2>
+    {% endif %}
+
+    {% if mapData.description %}
+      <p>{{ mapData.description }}</p>
+    {% endif %}
+
+    <div id="{{ resolvedMapId }}" class="leaflet-map-canvas"></div>
+    <script type="application/json" id="{{ resolvedMapId }}-config">{{ mapData | json | safe }}</script>
+  </section>
+{% endif %}

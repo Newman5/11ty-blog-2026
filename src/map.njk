@@ -1,0 +1,87 @@
+---
+title: Map
+permalink: /map/
+mapKey: anchorage
+---
+
+{% extends "base.njk" %}
+
+{% block title %}{{ title }} - 11ty Blog 2026{% endblock %}
+
+{% block extraHead %}
+  <link
+    rel="stylesheet"
+    href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+    integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+    crossorigin=""
+  >
+{% endblock %}
+
+{% block content %}
+  <h1>Map</h1>
+  <p>This page renders a Leaflet map using YAML data and a reusable include.</p>
+
+  {% set mapData = maps.maps[mapKey] %}
+  {% set mapId = "anchorage-map" %}
+  {% include "leaflet-map.njk" %}
+{% endblock %}
+
+{% block extraScripts %}
+  <script
+    src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+    integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+    crossorigin=""
+  ></script>
+  <script>
+    document.querySelectorAll('.leaflet-map-canvas').forEach(container => {
+      const configElement = document.getElementById(`${container.id}-config`);
+      if (!configElement) return;
+
+      const config = JSON.parse(configElement.textContent);
+      const center = [config.center.lat, config.center.lng];
+      const zoom = config.zoom || 13;
+
+      const map = L.map(container.id).setView(center, zoom);
+
+      const tileConfig = config.tile || {};
+      L.tileLayer(tileConfig.url || 'https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: tileConfig.maxZoom || 19,
+        attribution: tileConfig.attribution || '&copy; OpenStreetMap contributors'
+      }).addTo(map);
+
+      (config.markers || []).forEach(markerConfig => {
+        const marker = L.marker([markerConfig.lat, markerConfig.lng]).addTo(map);
+        if (markerConfig.popup) {
+          marker.bindPopup(markerConfig.popup);
+        }
+      });
+
+      if (config.circle) {
+        const circle = L.circle([config.circle.lat, config.circle.lng], {
+          color: config.circle.color || '#3388ff',
+          fillColor: config.circle.fillColor || '#3388ff',
+          fillOpacity: config.circle.fillOpacity ?? 0.2,
+          radius: config.circle.radius || 1000
+        }).addTo(map);
+
+        if (config.circle.popup) {
+          circle.bindPopup(config.circle.popup);
+        }
+      }
+
+      if (config.polygon && Array.isArray(config.polygon.points)) {
+        const polygon = L.polygon(config.polygon.points).addTo(map);
+        if (config.polygon.popup) {
+          polygon.bindPopup(config.polygon.popup);
+        }
+      }
+
+      if (config.popup) {
+        L.popup()
+          .setLatLng([config.popup.lat, config.popup.lng])
+          .setContent(config.popup.content)
+          .openOn(map);
+      }
+    });
+  </script>
+{% endblock %}
