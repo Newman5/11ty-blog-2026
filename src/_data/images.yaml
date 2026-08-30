@@ -137,3 +137,16 @@ images:
     source:
       name: "Unsplash"
       url: "https://unsplash.com/photos/8ac1LqavRh4"
+
+  coding-safari-but-we-need:
+    provider: unsplash
+    provider_id: group-of-zebra-walking-on-wheat-field-Jgiv1rSIpVM
+    alt: "Coding safari... but we need a map"
+    description: ""
+    credit:
+      name: "sutirta budiman"
+      username: "sutirtab"
+      url: ""
+    source:
+      name: "Unsplash"
+      url: "https://unsplash.com/photos/group-of-zebra-walking-on-wheat-field-Jgiv1rSIpVM"
