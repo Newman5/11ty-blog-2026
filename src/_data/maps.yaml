@@ -1,0 +1,37 @@
+# maps.yaml
+# Reusable map definitions for Leaflet components.
+# Each entry can define center, zoom, tile source, and overlays.
+
+maps:
+  anchorage:
+    title: Anchorage Area Map
+    description: A reusable map config rendered through the Leaflet include.
+    center:
+      lat: 61.2181
+      lng: -149.9003
+    zoom: 10
+    tile:
+      url: https://tile.openstreetmap.org/{z}/{x}/{y}.png
+      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+      maxZoom: 19
+    markers:
+      - lat: 61.2176
+        lng: -149.8997
+        popup: Downtown Anchorage
+      - lat: 61.1743
+        lng: -149.9985
+        popup: Ted Stevens Anchorage International Airport
+    circle:
+      lat: 61.2181
+      lng: -149.9003
+      radius: 1500
+      color: '#3388ff'
+      fillColor: '#3388ff'
+      fillOpacity: 0.25
+      popup: Rough 1.5km radius from city center
+    polygon:
+      points:
+        - [61.2400, -149.9800]
+        - [61.2550, -149.8600]
+        - [61.1800, -149.8350]
+      popup: Example polygon overlay

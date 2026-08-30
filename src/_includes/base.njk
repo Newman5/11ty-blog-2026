@@ -16,6 +16,7 @@
   <!-- This lets browsers and feed readers discover your RSS feed automatically -->
   <!-- Users can subscribe to your blog to get notified of new posts -->
   <link rel="alternate" href="{{ '/feed/feed.xml' | url }}" type="application/atom+xml" title="11ty Blog 2026 RSS Feed">
+  {% block extraHead %}{% endblock %}
   
   <!-- Minimal inline CSS for clean, readable layout -->
   <style>
@@ -215,6 +216,21 @@
       font-size: 0.85em;
       color: #888;
     }
+
+    .leaflet-map-block {
+      margin: 1.5rem 0 2rem;
+    }
+
+    .leaflet-map-block h2 {
+      margin-bottom: 0.4rem;
+    }
+
+    .leaflet-map-canvas {
+      width: 100%;
+      height: 380px;
+      border: 1px solid #d8d8d8;
+      border-radius: 6px;
+    }
   </style>
 </head>
 <body>
@@ -224,6 +240,7 @@
     <nav>
       <a href="{{ '/' | url }}">Home</a>
       <a href="{{ '/posts/' | url }}">All Posts</a>
+      <a href="{{ '/map/' | url }}">Map</a>
       <a href="{{ '/feed/feed.xml' | url }}">RSS Feed</a>
     </nav>
   </header>
@@ -240,5 +257,6 @@
   <footer>
     <p>Built with <a href="https://www.11ty.dev/">Eleventy</a> &mdash; Last updated: {{ page.date | readableDate }}</p>
   </footer>
+  {% block extraScripts %}{% endblock %}
 </body>
 </html>
